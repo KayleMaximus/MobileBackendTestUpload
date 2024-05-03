@@ -1,4 +1,4 @@
-const { db, storage } = require("./firebase.js");
+const { db, storage } = require("./config/db/firebase.js");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path")
 const express = require("express");
