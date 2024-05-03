@@ -12,7 +12,6 @@ class UserController {
                     const userData = doc.data();
                     const user = new User(userData.name, userData.status);
                     list.push(user);
-                    console.log(user); // Or do whatever you need with the course object
                 });
             })
             .catch(next);
@@ -51,6 +50,19 @@ class UserController {
             console.log("Caiconcak");
     
             res.status(200).send("User updated successfully");
+        } catch(error){
+            console.error('Error updating user: ', error);
+            res.status(500).send("Internal Server Error"); 
+        }
+    }
+
+    async delete(req, res) {
+        try {
+            const userId = req.body.id;
+
+            await db.collection('people').doc(userId).delete();
+    
+            res.status(200).send("User deleted successfully");
         } catch(error){
             console.error('Error updating user: ', error);
             res.status(500).send("Internal Server Error"); 
