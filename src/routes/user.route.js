@@ -3,8 +3,8 @@ const router = express.Router();
 
 const userController = require('../app/controllers/UserController');
 
-router.get('/create', userController.create);
-router.post('/store', userController.store);
+router.post('/create', userController.create);
+router.patch('/update/:id', userController.update);
 router.get('/', userController.index);
 
 module.exports = router;

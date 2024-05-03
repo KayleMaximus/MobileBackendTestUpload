@@ -19,13 +19,8 @@ class UserController {
         res.send(list);
     }
 
-    //[GET] /user/create
-    create(req, res, next) {
-        res.render('user/userCreate');
-    }
-
-    //[POST] /user/store
-    async store(req, res) {
+    //[POST] /user/create
+    async create(req, res) {
         try{
             const { name, status } = req.body;
             const newUser = new User(name, status);
@@ -39,6 +34,37 @@ class UserController {
             res.status(500).send("Internal Server Error"); 
         }
     }
+
+    async update(req, res) {
+        try {
+            const userId = req.params.id;
+            const { name, status } = req.body;
+    
+            console.log(userId);
+            console.log(name);
+            console.log(status);
+    
+            // Tạo một object JSON chứa các trường cần cập nhật
+            const updatedData = {};
+            if (name) updatedData.name = name;
+            if (status) updatedData.status = status;
+    
+            console.log(updatedData);
+    
+            // Cập nhật chỉ các trường đã được cung cấp trong updatedData
+            await db.collection('people').doc(userId).update(updatedData);
+    
+            console.log("Caiconcak");
+    
+            res.status(200).send("User updated successfully");
+        } catch(error){
+            console.error('Error updating user: ', error);
+            res.status(500).send("Internal Server Error"); 
+        }
+    }
+
+
+
 }
 
 module.exports = new UserController;
