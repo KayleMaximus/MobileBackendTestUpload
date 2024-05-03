@@ -37,20 +37,14 @@ class UserController {
 
     async update(req, res) {
         try {
-            const userId = req.params.id;
+            const userId = req.body.id;
             const { name, status } = req.body;
-    
-            console.log(userId);
-            console.log(name);
-            console.log(status);
-    
+      
             // Tạo một object JSON chứa các trường cần cập nhật
             const updatedData = {};
             if (name) updatedData.name = name;
             if (status) updatedData.status = status;
-    
-            console.log(updatedData);
-    
+
             // Cập nhật chỉ các trường đã được cung cấp trong updatedData
             await db.collection('people').doc(userId).update(updatedData);
     
@@ -62,8 +56,6 @@ class UserController {
             res.status(500).send("Internal Server Error"); 
         }
     }
-
-
 
 }
 
