@@ -7,9 +7,11 @@ const handlebars = require("express-handlebars");
 const multer = require("multer");
 const { FieldValue } = require("firebase-admin/firestore");
 const route = require('./routes')
+const cors = require('cors');
 
 const app = express();
 
+app.use(cors());  
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({
   extended: true
