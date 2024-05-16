@@ -25,6 +25,7 @@ class UserController {
             const { userID, username, email, signInMethod, imageURL } = req.body;
             const newUser = new User(userID, username, email, signInMethod, imageURL);
               
+            console.log(userID);
             console.log(newUser);
               await db.collection('users').add({
                     userID: newUser.userID,
