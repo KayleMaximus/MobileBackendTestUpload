@@ -1,6 +1,6 @@
 const { db, storage } = require("../../config/db/firebase");
-const sendNotification = require("../models/Marketing");
 const User = require("../models/User");
+const sendNotification = require('../models/Marketing');
 
 class UserController {
 
@@ -22,16 +22,20 @@ class UserController {
     //[POST] /user/create
     async create(req, res) {
         try{
-            const { registrationToken, name, status } = req.body;
-            const newUser = new User(name, status);
+            const { userID, username, password, email, signInMethod, imageUrl } = req.body;
+            const newUser = new User(userID, username, password, email, signInMethod, imageUrl);
               
-              await db.collection('people').add({
-                  name: newUser.name,
-                  status: newUser.status
+              await db.collection('users').add({
+                    userID: newUser.userID,
+                    username: newUser.username,
+                    password: newUser.password,
+                    email: newUser.email,
+                    signInMethod: newUser.signInMethod,
+                    imageUrl: newUser.imageUrl,
                 });
-                
-            sendNotification();
 
+                //sendNotification(newUser);
+                
             res.status(201).send("User created successfully");
         } catch(error){
             res.status(500).send("Internal Server Error"); 
