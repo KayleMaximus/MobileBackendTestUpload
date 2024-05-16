@@ -11,7 +11,7 @@ class UserController {
                 snapshot.forEach(doc => {
                     const userData = doc.data();
                     const user = new User(userData.userID, userData.username, 
-                        userData.password, userData.email, userData.signInMethod, userData.imageUrl);
+                         userData.email, userData.signInMethod, userData.imageURL);
                     list.push(user);
                 });
             })
@@ -19,19 +19,19 @@ class UserController {
         res.send(list);
     }
 
-    //[POST] /user/create
+    //[POST] /users
     async create(req, res) {
         try{
-            const { userID, username, password, email, signInMethod, imageUrl } = req.body;
-            const newUser = new User(userID, username, password, email, signInMethod, imageUrl);
+            const { userID, username, email, signInMethod, imageURL } = req.body;
+            const newUser = new User(userID, username, email, signInMethod, imageURL);
               
+            console.log(newUser);
               await db.collection('users').add({
                     userID: newUser.userID,
                     username: newUser.username,
-                    password: newUser.password,
                     email: newUser.email,
                     signInMethod: newUser.signInMethod,
-                    imageUrl: newUser.imageUrl,
+                    imageURL: newUser.imageURL,
                 });
 
                 //sendNotification(newUser);
@@ -43,19 +43,30 @@ class UserController {
     }
 
     async update(req, res) {
-        try {
-            const userId = req.body.id;
-            const { name, status } = req.body;
+        const userID = req.params.userID;
+        const { username, email, signInMethod, imageURL } = req.body;
       
-            // Tạo một object JSON chứa các trường cần cập nhật
-            const updatedData = {};
-            if (name) updatedData.name = name;
-            if (status) updatedData.status = status;
+        // Tạo một object JSON chứa các trường cần cập nhật
+        const updatedData = {};
+
+        if (username) updatedData.username = username;
+        if (email) updatedData.email = email;
+        if (signInMethod) updatedData.signInMethod = signInMethod;
+        if (imageURL) updatedData.imageURL = imageURL;
+
+        try {
+            // Tìm tài liệu có trường id phù hợp
+            const userRef = db.collection('users').where('userID', '==', userID);
+            const myUser = await userRef.get();
+            
+            if (myUser.empty) {
+                res.status(404).send('User not found');
+                return;
+        }
 
             // Cập nhật chỉ các trường đã được cung cấp trong updatedData
-            await db.collection('people').doc(userId).update(updatedData);
-    
-            console.log("Caiconcak");
+            const doc = myUser.docs[0];
+            await doc.ref.update(updatedData);
     
             res.status(200).send("User updated successfully");
         } catch(error){
@@ -66,9 +77,18 @@ class UserController {
 
     async delete(req, res) {
         try {
-            const userId = req.body.id;
+            const userID = req.params.userID;
 
-            await db.collection('people').doc(userId).delete();
+            const userRef = db.collection('users').where('userID', '==', userID);
+            const myUser = await userRef.get();
+            
+            if (myUser.empty) {
+                res.status(404).send('User not found');
+                return;
+            }
+
+            const doc = myUser.docs[0];
+            await doc.ref.delete();
     
             res.status(200).send("User deleted successfully");
         } catch(error){
@@ -77,22 +97,20 @@ class UserController {
         }
     }
 
-    async getByID(req, res) {
-        const id = req.params.id;
-        console.log(id);
+    async getUserByID(req, res) {
+        const userID = req.params.userID;
+        console.log(userID)
         try {
             // Truy vấn dữ liệu người dùng từ Firestore hoặc Realtime Database
-            const userDoc  = await db.collection('people').doc(id).get();
-            // const userData = await admin.database().ref('users/' + docId).once('value');
-        
-            if (!userDoc.exists) {
-              res.status(404).json({ error: 'User not found' });
-              return;
-            }
-        
-            const userData = userDoc.data(); // Lấy dữ liệu người dùng từ Firestore
-        
-            console.log(userData);
+            const userRef = db.collection('users').where('userID', '==', userID);
+            const myUser = await userRef.get();
+            
+            console.log(myUser)
+            
+            let userData = null;
+            myUser.forEach(doc => {
+                userData = doc.data();
+            }); // Lấy dữ liệu người dùng từ Firestore
 
             res.status(200).json(userData);
         }catch (error) {
