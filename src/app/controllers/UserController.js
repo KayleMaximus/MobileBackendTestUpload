@@ -1,17 +1,17 @@
 const { db, storage } = require("../../config/db/firebase");
 const User = require("../models/User");
-const sendNotification = require('../models/Marketing');
 
 class UserController {
 
     //[GET] /user
     async index(req, res, next){
         const list = [];
-        await db.collection('people').get()
+        await db.collection('users').get()
             .then(snapshot => {
                 snapshot.forEach(doc => {
                     const userData = doc.data();
-                    const user = new User(userData.name, userData.status);
+                    const user = new User(userData.userID, userData.username, 
+                        userData.password, userData.email, userData.signInMethod, userData.imageUrl);
                     list.push(user);
                 });
             })
