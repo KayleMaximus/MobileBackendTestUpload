@@ -1,6 +1,5 @@
 const { db, storage } = require("../../config/db/firebase");
 const User = require("../models/User");
-const bucket = storage.bucket();
 const { v4: uuidv4 } = require('uuid');
 
 class UserController {
@@ -31,7 +30,7 @@ class UserController {
             const destinationFileName = "images/" + fileName; // Use the generated filename
             
             await storage.bucket().file(destinationFileName).save(file.buffer, {
-                contentType: req.file.mimetype,
+                contentType: file.mimetype,
               });
 
             const fileURL = await storage.bucket().file(destinationFileName).getSignedUrl({

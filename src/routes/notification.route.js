@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 
 const notificationController = require('../app/controllers/NotificationController');
+const upload = multer({ storage: multer.memoryStorage() });
 
-router.post('/create', notificationController.create);
+
+router.post('/', upload.single('imageURL'), notificationController.create);
 router.get('/', notificationController.index);
 
 

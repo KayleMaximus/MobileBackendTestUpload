@@ -1,7 +1,8 @@
 class Notification {
-    constructor(title, body) {
+    constructor(title, body, imageURL) {
       this.title = title;
       this.body = body;
+      this.imageURL = imageURL; 
     }
 }
 
