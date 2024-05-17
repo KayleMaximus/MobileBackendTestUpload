@@ -23,22 +23,9 @@ class UserController {
     //[POST] /users
     async create(req, res) {
         try{
-            const { userID, username, email, signInMethod } = req.body;
-            const file = req.file;
+            const { userID, username, email, signInMethod, imageURL } = req.body;
+            const newUser = new User(userID, username, email, signInMethod, imageURL);
             
-            const fileName = uuidv4(); // Generate a unique filename using UUID
-            const destinationFileName = "images/" + fileName; // Use the generated filename
-            
-            await storage.bucket().file(destinationFileName).save(file.buffer, {
-                contentType: file.mimetype,
-              });
-
-            const fileURL = await storage.bucket().file(destinationFileName).getSignedUrl({
-                action:"read",
-                expires: "01-01-3000"
-            })
-            
-            const newUser = new User(userID, username, email, signInMethod, fileURL);
             await db.collection('users').add({
                 userID: newUser.userID,
                 username: newUser.username,
