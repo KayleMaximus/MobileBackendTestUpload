@@ -1,6 +1,8 @@
+require('dotenv').config();
 const { db, storage } = require("../../config/db/firebase");
 const User = require("../models/User");
-const { v4: uuidv4 } = require('uuid');
+const jwt = require('jsonwebtoken');
+const sendNotification = require('../models/Marketing');
 
 class UserController {
 
@@ -33,9 +35,16 @@ class UserController {
                 signInMethod: newUser.signInMethod,
                 imageURL: newUser.imageURL,
             });
-            res.status(201).send("User created successfully");
+
+            const token = newUser.generateAuthToken()
+
+            //res.send(token);
+
+            res.header('x-auth-token', token).send("User created successfully");
+
+            // res.status(201).send("User created successfully");
             
-                //sendNotification(newUser);  
+            // sendNotification(newUser);  
         } catch(error){
             res.status(500).send("Internal Server Error"); 
         }
@@ -68,7 +77,7 @@ class UserController {
             await doc.ref.update(updatedData);
     
             res.status(200).send("User updated successfully");
-        } catch(error){
+        } catch(error) {
             console.error('Error updating user: ', error);
             res.status(500).send("Internal Server Error"); 
         }

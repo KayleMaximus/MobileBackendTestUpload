@@ -8,6 +8,8 @@ const multer = require("multer");
 const { FieldValue } = require("firebase-admin/firestore");
 const route = require('./routes')
 const cors = require('cors');
+require('dotenv').config();
+
 
 const app = express();
 
@@ -22,8 +24,8 @@ app.use(morgan('combined')); //HTTP logger
 app.engine('hbs', handlebars.engine({ extname: '.hbs' }));
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'resources\\views'));
-const port = process.env.PORT || 8383;
 
+const port = process.env.PORT || 8383;
 route(app);
 
 
