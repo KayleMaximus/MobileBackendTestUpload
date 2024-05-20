@@ -26,6 +26,7 @@ async function uploadFile(authClient) {
 
     var fileMetaData = {
       name: "mydrivetext.txt",
+      //parents: ["1BHXt7gFyOVyZ08yPwdk7dOhhIuAkdepv"], // A folder ID to which file will get uploaded
       parents: ["1BHXt7gFyOVyZ08yPwdk7dOhhIuAkdepv"], // A folder ID to which file will get uploaded
     };
 
