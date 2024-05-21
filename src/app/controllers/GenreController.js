@@ -10,7 +10,6 @@ class GenreController {
             .then(snapshot => {
                 snapshot.forEach(doc => {
                     const genreData = doc.data();
-                    console.log(genreData.genreID);
                     const genre = new Genre(genreData.genreID, genreData.name);
                     list.push(genre);
                 });

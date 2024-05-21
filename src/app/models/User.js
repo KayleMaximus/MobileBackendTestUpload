@@ -1,6 +1,3 @@
-require('dotenv').config();
-const jwt = require('jsonwebtoken');
-
 class User {
     constructor(userID, username, email, signInMethod, imageURL) {
       this.userID = userID;
@@ -10,16 +7,6 @@ class User {
       this.imageURL = imageURL;
     }
 
-    generateAuthToken() {
-      const token = jwt.sign(
-        {userID: this.userID,
-          username: this.username
-        },
-        process.env.SECRET_KEY
-      );
-
-      return token;
-    }
 }
 
 module.exports = User;

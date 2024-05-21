@@ -1,7 +1,11 @@
 const { db, auth } = require("../../config/db/firebase");
+const User = require("../models/User");
+const generateAuthToken = require('../utils/auth')
+
 
 class LoginController {
-    async login(req, res) {
+
+    async loginAdmin(req, res) {
         const { username, password } = req.body;
 
         console.log(username, password);
@@ -12,13 +16,17 @@ class LoginController {
             const getUser = await userRef.get();
 
             let userData = null;
+            console.log(typeof(userData));
             getUser.forEach(doc => {
                 userData = doc.data();
             }); // Lấy dữ liệu người dùng từ Firestore
 
             if (userData.password === password && userData.isAdmin === true) {
-              const token = await auth.createCustomToken(username);
-              return res.status(200).send({ token });
+              console.log(userData);
+              const token = await generateAuthToken(userData);
+              console.log(token);
+              res.send(token);
+              return token;
             } else {
               return res.status(400).send('Invalid password');
             }
