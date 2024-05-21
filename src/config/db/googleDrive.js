@@ -18,89 +18,93 @@ async function authorize() {
   return jwtClient;
 }
 
-// A Function that will upload the desired file to google drive folder
-async function uploadFile(authClient) {
-  console.log("Uploading...");
-  return new Promise((resolve, rejected) => {
-    const drive = google.drive({ version: "v3", auth: authClient });
+module.exports = {
+  authorize
+};
 
-    var fileMetaData = {
-      name: "mydrivetext.txt",
-      //parents: ["1BHXt7gFyOVyZ08yPwdk7dOhhIuAkdepv"], // A folder ID to which file will get uploaded
-      parents: ["1BHXt7gFyOVyZ08yPwdk7dOhhIuAkdepv"], // A folder ID to which file will get uploaded
-    };
+// // A Function that will upload the desired file to google drive folder
+// async function uploadFile(authClient) {
+//   console.log("Uploading...");
+//   return new Promise((resolve, rejected) => {
+//     const drive = google.drive({ version: "v3", auth: authClient });
 
-    drive.files.create(
-      {
-        resource: fileMetaData,
-        media: {
-          body: fs.createReadStream("test.txt"), // files that will get uploaded
-          mimeType: "text/plain",
-        },
-        fields: "id",
-      },
-      function (error, file) {
-        if (error) {
-          return rejected(error);
-        }
-        console.log("Uploaded...");
-        resolve(file);
-      }
-    );
-  });
-}
+//     var fileMetaData = {
+//       name: "mydrivetext.txt",
+//       //parents: ["1BHXt7gFyOVyZ08yPwdk7dOhhIuAkdepv"], // A folder ID to which file will get uploaded
+//       parents: ["1BHXt7gFyOVyZ08yPwdk7dOhhIuAkdepv"], // A folder ID to which file will get uploaded
+//     };
 
-async function listFilesInFolder(authClient, folderId) {
-  const drive = google.drive({ version: "v3", auth: authClient });
+//     drive.files.create(
+//       {
+//         resource: fileMetaData,
+//         media: {
+//           body: fs.createReadStream("test.txt"), // files that will get uploaded
+//           mimeType: "text/plain",
+//         },
+//         fields: "id",
+//       },
+//       function (error, file) {
+//         if (error) {
+//           return rejected(error);
+//         }
+//         console.log("Uploaded...");
+//         resolve(file);
+//       }
+//     );
+//   });
+// }
 
-  return new Promise((resolve, reject) => {
-    drive.files.list(
-      {
-        q: `'${folderId}' in parents`,
-        fields: "files(id, name)",
-      },
-      (err, res) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(res.data.files);
-        }
-      }
-    );
-  });
-}
+// async function listFilesInFolder(authClient, folderId) {
+//   const drive = google.drive({ version: "v3", auth: authClient });
 
-//Upload
-//authorize().then(uploadFile).catch(error => console.error(error)); // function call
+//   return new Promise((resolve, reject) => {
+//     drive.files.list(
+//       {
+//         q: `'${folderId}' in parents`,
+//         fields: "files(id, name)",
+//       },
+//       (err, res) => {
+//         if (err) {
+//           reject(err);
+//         } else {
+//           resolve(res.data.files);
+//         }
+//       }
+//     );
+//   });
+// }
 
-async function listMp3FilesWithLinks(authClient, folderId) {
-  const drive = google.drive({ version: 'v3', auth: authClient });
+// //Upload
+// //authorize().then(uploadFile).catch(error => console.error(error)); // function call
 
-  return new Promise((resolve, reject) => {
-      drive.files.list({
-          q: `'${folderId}' in parents and mimeType='audio/mpeg'`,
-          fields: 'files(id, name, webContentLink)',
-      }, (err, res) => {
-          if (err) {
-              reject(err);
-          } else {
-              resolve(res.data.files);
-          }
-      });
-  });
-}
+// async function listMp3FilesWithLinks(authClient, folderId) {
+//   const drive = google.drive({ version: 'v3', auth: authClient });
 
-authorize()
-    .then(authClient => {
-        const folderId = '1_1gDZ3TDs8AR-_M1fuNDreaV2vBJw47J'; // Specify the folder ID
-        return listMp3FilesWithLinks(authClient, folderId);
-    })
-    .then(files => {
-        console.log('MP3 Files in the folder:');
-        files.forEach(file => {
-            console.log(`${file.name} (${file.id}) - Download Link: ${file.webContentLink}`);
-        });
-    })
-    .catch(error => {
-        console.error('Error listing MP3 files:', error);
-    });
+//   return new Promise((resolve, reject) => {
+//       drive.files.list({
+//           q: `'${folderId}' in parents and mimeType='audio/mpeg'`,
+//           fields: 'files(id, name, webContentLink)',
+//       }, (err, res) => {
+//           if (err) {
+//               reject(err);
+//           } else {
+//               resolve(res.data.files);
+//           }
+//       });
+//   });
+// }
+
+// authorize()
+//     .then(authClient => {
+//         const folderId = '1_1gDZ3TDs8AR-_M1fuNDreaV2vBJw47J'; // Specify the folder ID
+//         return listMp3FilesWithLinks(authClient, folderId);
+//     })
+//     .then(files => {
+//         console.log('MP3 Files in the folder:');
+//         files.forEach(file => {
+//             console.log(`${file.name} (${file.id}) - Download Link: ${file.webContentLink}`);
+//         });
+//     })
+//     .catch(error => {
+//         console.error('Error listing MP3 files:', error);
+//     });
