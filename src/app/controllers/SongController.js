@@ -8,9 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const Song = require("../models/Song");
 
 
-
 class SongController {
-
     //[GET] /user
     async index(req, res, next){
         const list = [];
