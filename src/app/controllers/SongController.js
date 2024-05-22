@@ -19,7 +19,7 @@ class SongController {
                 snapshot.forEach(doc => {
                     const songData = doc.data();
                     const song = new Song(songData.songID, songData.name, songData.artist, songData.genre,
-                         songData.album, songData.views, songData.songURL, songData.imageURL);
+                         songData.album, songData.views, songData.createdAt, songData.songURL, songData.imageURL);
                     list.push(song);
                 });
             })
