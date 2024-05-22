@@ -21,9 +21,9 @@ app.use(express.urlencoded({
 app.use(express.json());
 app.use(morgan('combined')); //HTTP logger
  //Template Engine
-app.engine('hbs', handlebars.engine({ extname: '.hbs' }));
-app.set('view engine', 'hbs');
-app.set('views', path.join(__dirname, 'resources\\views'));
+// app.engine('hbs', handlebars.engine({ extname: '.hbs' }));
+// app.set('view engine', 'hbs');
+// app.set('views', path.join(__dirname, 'resources\\views'));
 
 const port = process.env.PORT || 8383;
 route(app);
