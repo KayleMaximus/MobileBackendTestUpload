@@ -34,8 +34,6 @@ class SongController {
             const songFile = req.file;
             console.log(songFile.buffer);
 
-            console.log("Uploading...");
-
             const authClient = await authorize();
             const drive = google.drive({ version: "v3", auth: authClient });
             
@@ -72,11 +70,10 @@ class SongController {
     let imageURL = "";
 
     if (metadata.common.picture && metadata.common.picture.length > 0) {
-      console.log("Downloading image...");
       const imageBuffer = Buffer.from(metadata.common.picture[0].data);
       const imageName = `${name}_thumbnail.jpg`;
 
-      console.log(imageBuffer.mimetype);
+      console.log(imageBuffer);
       console.log(imageName);
 
       console.log("Uploading image to Firestore storage...");
@@ -92,10 +89,9 @@ class SongController {
                 })
                 imageURL = fileURL.toString();
     }
-                
-                
-
-                const newSong = new Song(songID, name, artist, genre, album, views, songUrl, imageURL);
+                const createdAt = new Date().toISOString().split('T')[0];
+                console.log(typeof(createdAt));
+                const newSong = new Song(songID, name, artist, genre, album, views, createdAt, songUrl, imageURL);
 
                 console.log(newSong)
 
@@ -106,6 +102,7 @@ class SongController {
                     genre: newSong.genre,
                     album: newSong.album,
                     views: newSong.views,
+                    createdAt: newSong.createdAt,
                     songURL: newSong.songURL,
                     imageURL: newSong.imageURL,
                 });

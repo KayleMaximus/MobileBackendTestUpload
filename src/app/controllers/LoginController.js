@@ -16,7 +16,6 @@ class LoginController {
             const getUser = await userRef.get();
 
             let userData = null;
-            console.log(typeof(userData));
             getUser.forEach(doc => {
                 userData = doc.data();
             }); // Lấy dữ liệu người dùng từ Firestore
