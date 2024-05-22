@@ -90,7 +90,7 @@ class SongController {
                     action:"read",
                     expires: "01-01-3000"
                 })
-                imageURL = fileURL;
+                imageURL = fileURL.toString();
     }
                 
                 
