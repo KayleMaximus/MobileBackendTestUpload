@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { db, storage } = require("../../config/db/firebase");
 const { google } = require("googleapis");
+const stream = require("stream");
 const {authorize} = require("../../config/db/googleDrive");
 const fs = require("fs");
 const mm = require('music-metadata');
@@ -27,32 +28,32 @@ class SongController {
 
     //[POST] /users
     async create(req, res) {
-        try{
-            const { name, artist, genre, album, views } = req.body;
-            const songFile = req.file;
-            console.log(songFile.buffer);
+        const { name, artist, genre, album, views } = req.body;
+        const songFile = req.file;
 
+        try{
+            // Authentication with gg drive
             const authClient = await authorize();
             const drive = google.drive({ version: "v3", auth: authClient });
             
+            // Handle songURL, save it in drive
             const fileMetaData = {
                 name: name,
                 //parents: ["1BHXt7gFyOVyZ08yPwdk7dOhhIuAkdepv"], // A folder ID to which file will get uploaded
                 parents: ["1TafzkI_G7A9DBIg-zzztYo8PrzQopFN6"], // A folder ID to which file will get uploaded
             };
-
+   
             const media = {
                 mimeType: 'audio/mpeg',
-                body: fs.createReadStream(songFile.originalname), // Đọc dữ liệu từ tệp MP3
-              };
-
-            
+                body: new stream.PassThrough().end(songFile.buffer), // Đọc dữ liệu từ tệp MP3
+            };
+                    
             const response = await drive.files.create({
                 resource: fileMetaData,
                 media: media,
                 fields: "id",
-              });
-
+            });
+                
             const songID = response.data.id;
             await drive.permissions.create({
                 fileId: songID,
@@ -61,21 +62,21 @@ class SongController {
                     type: 'anyone',
                 },
             });
-
+                
             const songUrl = `https://drive.google.com/uc?id=${songID}&export=download`;
-    const metadata = await mm.parseFile(songFile.originalname);
+            // Done it
 
-    let imageURL = "";
+     
+            // Handle Thumbnail, save it in firebase
+            const metadata = await mm.parseBuffer(songFile.buffer);;
 
-    if (metadata.common.picture && metadata.common.picture.length > 0) {
-      const imageBuffer = Buffer.from(metadata.common.picture[0].data);
-      const imageName = `${name}_thumbnail.jpg`;
+            let imageURL = "";
 
-      console.log(imageBuffer);
-      console.log(imageName);
+            if (metadata.common.picture && metadata.common.picture.length > 0) {
+                const imageBuffer = Buffer.from(metadata.common.picture[0].data);
+                const imageName = `${name}_thumbnail.jpg`;
 
-      console.log("Uploading image to Firestore storage...");
-    const destinationFileName = "images/" + imageName; 
+                const destinationFileName = "images/" + imageName; 
                 
                 await storage.bucket().file(destinationFileName).save(imageBuffer, {
                     contentType: 'image/jpeg',
@@ -85,26 +86,28 @@ class SongController {
                     action:"read",
                     expires: "01-01-3000"
                 })
+
                 imageURL = fileURL.toString();
-    }
-                const createdAt = new Date().toISOString().split('T')[0];
-                console.log(typeof(createdAt));
-                const newSong = new Song(songID, name, artist, genre, album, views, createdAt, songUrl, imageURL);
+            }
+            // Done it
 
-                console.log(newSong)
+            //create prop createdAt
+            const createdAt = new Date().toISOString().split('T')[0];
 
-                await db.collection('songs').add({
-                    songID: newSong.songID,
-                    name: newSong.name,
-                    artist: newSong.artist,
-                    genre: newSong.genre,
-                    album: newSong.album,
-                    views: newSong.views,
-                    createdAt: newSong.createdAt,
-                    songURL: newSong.songURL,
-                    imageURL: newSong.imageURL,
-                });
-            fs.unlinkSync(songFile.originalname);
+            // create object Song
+            const newSong = new Song(songID, name, artist, genre, album, views, createdAt, songUrl, imageURL);
+
+            await db.collection('songs').add({
+                songID: newSong.songID,
+                name: newSong.name,
+                artist: newSong.artist,
+                genre: newSong.genre,
+                album: newSong.album,
+                views: newSong.views,
+                createdAt: newSong.createdAt,
+                songURL: newSong.songURL,
+                imageURL: newSong.imageURL,
+            });
 
             res.status(201).send("Song created successfully");
         } catch(error){

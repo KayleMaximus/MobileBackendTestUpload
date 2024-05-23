@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 
 const songController = require('../app/controllers/SongController');
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer();
 
 router.get('/', songController.index);
 router.post('/', upload.single('songFile'), songController.create);
