@@ -46,7 +46,7 @@ class BannerController {
           expires: "01-01-3000",
         });
 
-      const newBanner = new Banner(bannerID, fileURL, link);
+      const newBanner = new Banner(bannerID, fileURL.toString(), link);
 
       console.log(newBanner);
       await db.collection("banners").add({

@@ -26,7 +26,7 @@ class SongController {
         res.send(list);
     }
 
-    //[POST] /users
+    //[POST] 
     async create(req, res) {
         const { name, artist, genre, album, views } = req.body;
         const songFile = req.file;
@@ -113,6 +113,20 @@ class SongController {
         } catch(error){
             res.status(500).send("Internal Server Error"); 
         }
+    }
+
+    //[GET] /getAllSongName
+    async getAllSongName(req, res, next){
+        const list = [];
+        await db.collection('songs').get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    const songData = doc.data();
+                    list.push(songData.name);
+                });
+            })
+            .catch(next);
+        res.send(list);
     }
 }
 

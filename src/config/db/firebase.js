@@ -17,5 +17,4 @@ const storage = getStorage();
 const messaging = getMessaging();
 const auth = getAuth();
 
-
-module.exports = { db, storage, messaging, auth };
+module.exports = { admin, db, storage, messaging, auth };
