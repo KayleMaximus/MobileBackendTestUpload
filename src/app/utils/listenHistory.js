@@ -4,9 +4,9 @@ const ListenHistory = require("../models/ListenHistory");
 
 async function create(req, res) {
     try{
-        const { userID, songID, lastListen, isLove, count } = req.body;
+        const { userID, songID, lastListen, isLove } = req.body;
 
-        const newListenHistory = new ListenHistory(userID, songID, lastListen, isLove, count);
+        const newListenHistory = new ListenHistory(userID, songID, lastListen, isLove, 1);
         
         console.log(newListenHistory);
 
@@ -33,7 +33,7 @@ async function update(req, res) {
 
     if (lastListen) updatedData.lastListen = lastListen;
     if (isLove) updatedData.isLove = isLove;
-    if (count) updatedData.count = count;
+    if (count) updatedData.count = count + 1;
 
     try {
         // Tìm tài liệu có trường id phù hợp
