@@ -1,6 +1,8 @@
 const { db, storage } = require("../../config/db/firebase");
 const Artist = require("../models/Artist");
 const { v4: uuidv4 } = require('uuid');
+const generateRandomID = require("../utils/randomID");
+
 
 
 class ArtistController {
@@ -20,9 +22,10 @@ class ArtistController {
     }
 
     async create(req, res) {
+        const artistID = generateRandomID(23);
+        const { name, description, listSong } = req.body;
+        const file = req.file;
         try{
-            const { artistID, name, description, listSong } = req.body;
-            const file = req.file;
 
             const fileName = uuidv4(); // Generate a unique filename using UUID
             const destinationFileName = "images/" + fileName; // Use the generated filename
@@ -36,7 +39,7 @@ class ArtistController {
                 expires: "01-01-3000"
             })
 
-            const newArtist = new Artist(artistID, name, description, fileURL, []);
+            const newArtist = new Artist(artistID, name, description, fileURL.toString(), []);
             await db.collection('artists').add({
                 artistID: newArtist.artistID,
                 name: newArtist.name,
