@@ -24,7 +24,7 @@ class BannerController {
     res.send(list);
   }
   async create(req, res) {
-    const bannerID = generateRandomID(33);
+    const bannerID = generateRandomID(23);
     const { link } = req.body;
     const file = req.file;
 

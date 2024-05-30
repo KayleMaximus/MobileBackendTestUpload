@@ -7,7 +7,8 @@ const artistRouter = require('./artist.route');
 const genreRouter = require('./genre.route');
 const albumRouter = require('./album.route');
 const historyRouter = require('./listenHistory.route');
-const searchRouter = require('./searchHistory.route');
+const searchRouter = require('./search.route');
+const searchHistoryRouter = require('./searchHistory.route');
 const bannerRouter = require('./banner.route');
 
 
@@ -21,6 +22,7 @@ function route(app) {
     app.use('/albums', albumRouter);
     app.use('/history', historyRouter);
     app.use('/search', searchRouter);
+    app.use('/searchHistory', searchHistoryRouter);
     app.use('/banners', bannerRouter);
     app.use('/', siteRouter);
 

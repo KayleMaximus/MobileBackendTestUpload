@@ -1,5 +1,6 @@
 const { db, storage } = require("../../config/db/firebase");
 const SearchHistory = require("../models/SearchHistory");
+const axios = require('axios');
 
 class SearchHistoryController {
   //[GET]
@@ -47,6 +48,18 @@ class SearchHistoryController {
           // Trả về toàn bộ tài liệu với mảng 'content' đã được đảo ngược
           res.status(200).json(data);
       }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async searchSong(req, res) {
+    const query = req.body;
+    try {
+      const responseGetAllSongAPI = await axios.get('https://mobilebackendtestupload-q7eh.onrender.com/songs');
+      console.log(responseGetAllSongAPI);
+      
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ error: "Internal server error" });
