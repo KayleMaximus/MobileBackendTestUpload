@@ -1,17 +1,15 @@
 const { db, storage } = require("../../config/db/firebase");
-const searchSong = require('../utils/search');
-const axios = require('axios');
+const sumaryResponseData = require('../utils/search');
 
 class SearchController {
     async searchSong(req, res) {
-        const query = req.query.query;
-        console.log(query);
+        const {query, artist} = req.query;
+        console.log(query, artist);
         try {
-          const responseGetAllSongAPI = await axios.get('https://mobilebackendtestupload-q7eh.onrender.com/songs');
-          const dataReturn = responseGetAllSongAPI.data;
-          const objectReturn = searchSong(query, dataReturn);
+
+          const response = await sumaryResponseData(query, artist);
           
-          res.status(200).send(objectReturn);
+          res.status(200).send(response);
           
         } catch (error) {
           console.error("Error fetching user:", error);
