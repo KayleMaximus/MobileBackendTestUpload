@@ -59,8 +59,6 @@ class ArtistController {
     async getArtistBySongName(req, res, next){
         const nameSong = req.query.nameSong;
 
-        console.log(nameSong)
-
         let list = [];
 
         await db.collection('artists').where('listSong', 'array-contains', nameSong).get()
@@ -79,8 +77,6 @@ class ArtistController {
     //[GET] /nameAlbum
     async getArtistByAlbumName(req, res, next){
         const nameAlbum = req.query.nameAlbum;
-
-        console.log(nameAlbum)
 
         let list = [];
 

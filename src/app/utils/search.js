@@ -4,12 +4,12 @@ const Artist = require("../models/Artist");
 const Album = require("../models/Album");
 const axios = require("axios");
 
-//const songAPI_URL = "https://mobilebackendtestupload-q7eh.onrender.com/songs";
-const songAPI_URL = "http://localhost:8383/songs";
-//const artistAPI_URL = "https://mobilebackendtestupload-q7eh.onrender.com/artists";
-const artistAPI_URL = "http://localhost:8383/artists";
-//const albumAPI_URL = "https://mobilebackendtestupload-q7eh.onrender.com/albums";
-const albumAPI_URL = "http://localhost:8383/albums";
+// const songAPI_URL = "http://localhost:8383/songs";
+// const artistAPI_URL = "http://localhost:8383/artists";
+// const albumAPI_URL = "http://localhost:8383/albums";
+const songAPI_URL = "https://mobilebackendtestupload-q7eh.onrender.com/songs";
+const artistAPI_URL = "https://mobilebackendtestupload-q7eh.onrender.com/artists";
+const albumAPI_URL = "https://mobilebackendtestupload-q7eh.onrender.com/albums";
 
 // Hàm tiền xử lý để loại bỏ dấu câu và chuyển đổi văn bản về dạng chữ thường
 function preprocess(query) {
@@ -81,9 +81,7 @@ async function searchSong(query) {
 }
 
 async function searchArtist(query) {
-  const responseGetAllArtistAPI = await axios.get(
-    "https://mobilebackendtestupload-q7eh.onrender.com/artists"
-  );
+  const responseGetAllArtistAPI = await axios.get(artistAPI_URL);
   const artists = responseGetAllArtistAPI.data;
 
   // Tạo chỉ mục ElasticLunr
@@ -136,9 +134,7 @@ async function searchArtist(query) {
 }
 
 async function searchAlbum(query) {
-  const responseGetAllAlbumAPI = await axios.get(
-    "https://mobilebackendtestupload-q7eh.onrender.com/albums"
-  );
+  const responseGetAllAlbumAPI = await axios.get(albumAPI_URL);
   const albums = responseGetAllAlbumAPI.data;
 
   // Tạo chỉ mục ElasticLunr
@@ -243,6 +239,7 @@ async function handleGetSong(listAll) {
 
 async function handleGetArtist(listAll) {
   let listArtist = [];
+
   const artistPromises = listAll.map(async (item) => {
     if (item.type === "song" && item.data.name) {
       const response = await axios.get(artistAPI_URL + "/nameSong", {
@@ -251,7 +248,9 @@ async function handleGetArtist(listAll) {
         },
       });
 
-      const existingArtists = new Set(listArtist.map((artist) => artist.artistID));
+      const existingArtists = new Set(
+        listArtist.map((artist) => artist.artistID)
+      );
       const uniqueNewArtists = response.data.filter(
         (artist) => !existingArtists.has(artist.artistID)
       );
@@ -273,7 +272,9 @@ async function handleGetArtist(listAll) {
         },
       });
 
-      const existingArtists = new Set(listArtist.map((artist) => artist.artistID));
+      const existingArtists = new Set(
+        listArtist.map((artist) => artist.artistID)
+      );
       const uniqueNewArtists = response.data.filter(
         (artist) => !existingArtists.has(artist.artistID)
       );

@@ -47,7 +47,7 @@ class AlbumController {
         });
 
       const newAlbum = new Album(albumID, name, artist, fileURL.toString(), []);
-      console.log(albumID, name, fileURL);
+
       await db.collection("albums").add({
         albumID: newAlbum.albumID,
         name: newAlbum.name,
@@ -65,8 +65,6 @@ class AlbumController {
   //[GET] /nameSong
   async getAlbumtBySongName(req, res, next) {
     const nameSong = req.query.nameSong;
-
-    console.log(nameSong);
 
     let list = [];
 
@@ -95,8 +93,6 @@ class AlbumController {
   async getAlbumtByArtistName(req, res, next) {
     const nameArtist = req.query.nameArtist;
 
-    console.log(nameArtist);
-
     let list = [];
 
     await db.collection('albums').where('artist', '==', nameArtist).get()
@@ -114,8 +110,6 @@ class AlbumController {
         });
       })
       .catch(next);
-
-      console.log(list);
 
     res.send(list);
   }
