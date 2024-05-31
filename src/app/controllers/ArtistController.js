@@ -13,7 +13,7 @@ class ArtistController {
                 snapshot.forEach(doc => {
                     const artistData = doc.data();
                     const artist = new Artist(artistData.artistID, artistData.name, 
-                        artistData.description, artistData.imageURL, artistData.listSong);
+                        artistData.description, artistData.imageURL, artistData.listSong, artistData.listAlbum);
                     list.push(artist);
                 });
             })
@@ -23,7 +23,7 @@ class ArtistController {
 
     async create(req, res) {
         const artistID = generateRandomID(23);
-        const { name, description, listSong } = req.body;
+        const { name, description, listSong, listAlbum } = req.body;
         const file = req.file;
         try{
 
@@ -39,13 +39,14 @@ class ArtistController {
                 expires: "01-01-3000"
             })
 
-            const newArtist = new Artist(artistID, name, description, fileURL.toString(), []);
+            const newArtist = new Artist(artistID, name, description, fileURL.toString(), [], []);
             await db.collection('artists').add({
                 artistID: newArtist.artistID,
                 name: newArtist.name,
                 description: newArtist.description,
                 imageURL: newArtist.imageURL,
                 listSong: newArtist.listSong,
+                listAlbum: newArtist.listAlbum,
             })
             
             res.status(201).send("Artist created successfully"); 
