@@ -128,6 +128,42 @@ class SongController {
             .catch(next);
         res.send(list);
     }
+
+    //[GET] /nameArtist
+    async getSongByArtistName(req, res, next){
+        const nameArtist = req.query.nameArtist;
+        let list = [];
+
+        await db.collection('songs').where('artist', '==', nameArtist).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    const songData = doc.data();
+                    const song = new Song(songData.songID, songData.name, songData.artist, songData.genre,
+                         songData.album, songData.views, songData.createdAt, songData.songURL, songData.imageURL);
+                    list.push(song);
+                });
+            })
+            .catch(next);
+        res.send(list);
+    }
+
+    //[GET] /nameAlbum
+    async getSongByAlbumName(req, res, next){
+        const nameAlbum = req.query.nameAlbum;
+        let list = [];
+        
+        await db.collection('songs').where('album', '==', nameAlbum).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    const songData = doc.data();
+                    const song = new Song(songData.songID, songData.name, songData.artist, songData.genre,
+                         songData.album, songData.views, songData.createdAt, songData.songURL, songData.imageURL);
+                    list.push(song);
+                });
+            })
+            .catch(next);
+        res.send(list);
+    }
 }
 
 module.exports = new SongController;

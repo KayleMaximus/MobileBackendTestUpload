@@ -54,6 +54,48 @@ class ArtistController {
             res.status(500).send("Internal Server Error"); 
         }
     }
+
+    //[GET] /nameSong
+    async getArtistBySongName(req, res, next){
+        const nameSong = req.query.nameSong;
+
+        console.log(nameSong)
+
+        let list = [];
+
+        await db.collection('artists').where('listSong', 'array-contains', nameSong).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    const artistData = doc.data();
+                    const artist = new Artist(artistData.artistID, artistData.name, 
+                        artistData.description, artistData.imageURL, artistData.listSong, artistData.listAlbum);
+                    list.push(artist);
+                });
+            })
+            .catch(next);
+        res.send(list);
+    }
+
+    //[GET] /nameAlbum
+    async getArtistByAlbumName(req, res, next){
+        const nameAlbum = req.query.nameAlbum;
+
+        console.log(nameAlbum)
+
+        let list = [];
+
+        await db.collection('artists').where('listAlbum', 'array-contains', nameAlbum).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    const artistData = doc.data();
+                    const artist = new Artist(artistData.artistID, artistData.name, 
+                        artistData.description, artistData.imageURL, artistData.listSong, artistData.listAlbum);
+                    list.push(artist);
+                });
+            })
+            .catch(next);
+        res.send(list);
+    }
 }
 
 module.exports = new ArtistController;

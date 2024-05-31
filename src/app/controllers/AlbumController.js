@@ -3,7 +3,6 @@ const Album = require("../models/Album");
 const { v4: uuidv4 } = require("uuid");
 const generateRandomID = require("../utils/randomID");
 
-
 class AlbumController {
   async index(req, res, next) {
     const list = [];
@@ -61,6 +60,64 @@ class AlbumController {
     } catch (error) {
       res.status(500).send("Internal Server Error");
     }
+  }
+
+  //[GET] /nameSong
+  async getAlbumtBySongName(req, res, next) {
+    const nameSong = req.query.nameSong;
+
+    console.log(nameSong);
+
+    let list = [];
+
+    await db
+      .collection("albums")
+      .where("listSong", "array-contains", nameSong)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const albumData = doc.data();
+          const album = new Album(
+            albumData.albumID,
+            albumData.name,
+            albumData.artist,
+            albumData.imageURL,
+            albumData.listSong
+          );
+          list.push(album);
+        });
+      })
+      .catch(next);
+    res.send(list);
+  }
+
+  //[GET] /nameArtist
+  async getAlbumtByArtistName(req, res, next) {
+    const nameArtist = req.query.nameArtist;
+
+    console.log(nameArtist);
+
+    let list = [];
+
+    await db.collection('albums').where('artist', '==', nameArtist).get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const albumData = doc.data();
+          const album = new Album(
+            albumData.albumID,
+            albumData.name,
+            albumData.artist,
+            albumData.imageURL,
+            albumData.listSong
+          );
+          list.push(album);
+        });
+      })
+      .catch(next);
+
+      console.log(list);
+
+    res.send(list);
   }
 }
 

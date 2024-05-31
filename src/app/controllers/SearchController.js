@@ -3,11 +3,11 @@ const sumaryResponseData = require('../utils/search');
 
 class SearchController {
     async searchSong(req, res) {
-        const {query, artist} = req.query;
-        console.log(query, artist);
+        const {query, song, artist, album} = req.query;
+        console.log(query, song, artist, album);
         try {
 
-          const response = await sumaryResponseData(query, artist);
+          const response = await sumaryResponseData(query, song, artist, album);
           
           res.status(200).send(response);
           
