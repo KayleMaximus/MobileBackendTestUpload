@@ -115,20 +115,6 @@ class SongController {
         }
     }
 
-    //[GET] /getAllSongName
-    async getAllSongName(req, res, next){
-        const list = [];
-        await db.collection('songs').get()
-            .then(snapshot => {
-                snapshot.forEach(doc => {
-                    const songData = doc.data();
-                    list.push(songData.name);
-                });
-            })
-            .catch(next);
-        res.send(list);
-    }
-
     //[GET] /nameArtist
     async getSongByArtistName(req, res, next){
         const nameArtist = req.query.nameArtist;
