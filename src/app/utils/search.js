@@ -356,22 +356,22 @@ async function sumaryResponseData(query, song, artist, album) {
 
   reponseAll.sort((a, b) => b.score - a.score);
 
-  if (song) {
+  if (song && !artist && !album) {
     const response = await handleGetSong(reponseAll);
     response.sort((a, b) => b.score - a.score);
     response.forEach(item => delete item.score);
     return response;
-  } else if (artist) {
+  } else if (artist && !song && !album) {
     const response = await handleGetArtist(reponseAll);
     response.sort((a, b) => b.score - a.score);
     response.forEach(item => delete item.score);
     return response;
-  } else if (album) {
+  } else if (album && !song && !artist) {
     const response = await handleGetAlbum(reponseAll);
     response.sort((a, b) => b.score - a.score);
     response.forEach(item => delete item.score);
     return response;
-  } else {
+  } else if(!song && !artist && album) {
     reponseAll.forEach(item => delete item.score);
     return reponseAll;
   }
