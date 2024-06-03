@@ -7,6 +7,7 @@ const fs = require("fs");
 const mm = require('music-metadata');
 const { v4: uuidv4 } = require('uuid');
 const Song = require("../models/Song");
+const sqlite = require('../../config/db/sqliteCloud');
 
 
 class SongController {
@@ -149,6 +150,16 @@ class SongController {
             })
             .catch(next);
         res.send(list);
+    }
+
+    async getSongFromSQLite(req, res, next){
+        console.log("toidayroi")
+
+        let results = await sqlite.sql`SELECT * FROM "songs"`
+
+
+        res.send(results);
+
     }
 }
 
