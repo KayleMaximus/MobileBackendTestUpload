@@ -10,6 +10,7 @@ const historyRouter = require('./listenHistory.route');
 const searchRouter = require('./search.route');
 const searchHistoryRouter = require('./searchHistory.route');
 const bannerRouter = require('./banner.route');
+const paymentRouter = require('./payment.route');
 
 
 function route(app) {
@@ -24,6 +25,7 @@ function route(app) {
     app.use('/search', searchRouter);
     app.use('/searchHistory', searchHistoryRouter);
     app.use('/banners', bannerRouter);
+    app.use('/payment', paymentRouter);
     app.use('/', siteRouter);
 
 }
