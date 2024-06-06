@@ -4,7 +4,8 @@ const auth = require('../app/middlewares/auth')
 
 const genreController = require('../app/controllers/GenreController');
 
-router.get('/', auth, genreController.index);
+router.get('/genreName', genreController.getGenreBySongID);
+router.get('/', genreController.index);
 router.post('/', genreController.create);
 
 module.exports = router;

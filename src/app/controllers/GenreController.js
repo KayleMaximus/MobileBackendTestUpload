@@ -33,6 +33,25 @@ class GenreController {
             res.status(500).send("Internal Server Error"); 
         }
     }
+
+    async getGenreBySongID(req, res) {
+        try{
+            const { songID } = req.body;
+
+            await db
+            .collection("songs")
+            .where("songID", "==", songID)
+            .get()
+            .then((snapshot) => {
+              snapshot.forEach((doc) => {
+                const songData = doc.data();
+                return songData.genre;
+              });
+            })
+        } catch(error){
+            res.status(500).send("Internal Server Error"); 
+        }
+    }
 }
 
 module.exports = new GenreController;
