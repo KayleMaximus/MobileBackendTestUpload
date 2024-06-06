@@ -152,6 +152,21 @@ class SongController {
         res.send(list);
     }
 
+    async getRecentSongByUserID(req, res, next){
+        let listRecentSong = req.listRecentSong;
+
+        if(listRecentSong.length <= 10) {
+            res.send(listRecentSong);
+        } else {
+            listRecentSong.sort(() => Math.random() - 0.5);
+
+            // Limit the list to the first 10 entries
+            listRecentSong = listRecentSong.slice(0, 10);
+
+            res.send(listRecentSong);
+        }
+    }
+
     async getSongFromSQLite(req, res, next){
         console.log("toidayroi")
 
