@@ -26,16 +26,14 @@ class ListenHistoryController {
   }
 
   async getHistoryByUserID(req, res) {
-    const userID = req.params.userID;
-    console.log(userID);
+    const userID = req.query.userID;
+
     try {
       // Truy vấn dữ liệu người dùng từ Firestore
       const userRef = db
         .collection("listenHistory")
         .where("userID", "==", userID);
       const myUser = await userRef.get();
-
-      console.log(myUser);
 
       let userDataList = [];
       myUser.forEach((doc) => {
@@ -49,7 +47,32 @@ class ListenHistoryController {
     }
   }
 
-  async update(req, res) {
+  async getHistoryByUserIDAndSongID(req, res) {
+    const userID = req.query.userID;
+    const songID = req.query.songID;
+
+    try {
+      // Truy vấn dữ liệu người dùng từ Firestore
+      const userRef = db
+        .collection("listenHistory")
+        .where("userID", "==", userID)
+        .where("songID", "==", songID)
+        .limit(1);
+      const myUser = await userRef.get();
+
+      let userDataList = [];
+      myUser.forEach((doc) => {
+        userDataList.push(doc.data());
+      }); // Lấy tất cả dữ liệu người dùng từ Firestore
+
+      res.status(200).json(userDataList);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async updateIsLove(req, res) {
     const { userID, songID, isLove } = req.body;
 
     try {
@@ -70,7 +93,7 @@ class ListenHistoryController {
 
         // Sử dụng arrayUnion để thêm phần tử vào cuối mảng 'content'
         await doc.ref.update({
-          isLove: isLove
+          isLove: isLove,
         });
 
         res.status(200).send("Updated Field Value isLove successfully");

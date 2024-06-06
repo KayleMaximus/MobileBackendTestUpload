@@ -21,7 +21,7 @@ function route(app) {
     app.use('/artists', artistRouter);
     app.use('/genres', genreRouter);
     app.use('/albums', albumRouter);
-    app.use('/history', historyRouter);
+    app.use('/listenHistory', historyRouter);
     app.use('/search', searchRouter);
     app.use('/searchHistory', searchHistoryRouter);
     app.use('/banners', bannerRouter);
