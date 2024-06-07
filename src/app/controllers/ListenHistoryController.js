@@ -1,5 +1,9 @@
 const { db } = require("../../config/db/firebase");
 const ListenHistory = require("../models/ListenHistory");
+const axios = require("axios");
+
+//const getSongByGenre_API_URL = process.env.API_URL + 'songs/nameGenre';
+const getSongBySongID_API_URL = "http://localhost:8383/" + "songs/songID";
 
 class ListenHistoryController {
   //[GET]
@@ -26,23 +30,27 @@ class ListenHistoryController {
   }
 
   async getSongLoveByUserID(req, res) {
-    const userID = req.query.userID;
+    const listSongID = req.listSongID;
+    let listSong = [];
 
     try {
-      // Truy vấn dữ liệu người dùng từ Firestore
-      const userRef = db
-        .collection("listenHistory")
-        .where("userID", "==", userID);
-      const myUser = await userRef.get();
+      const songPromises = listSongID.map(async (item) => {
+        try {
+          const song = await axios.get(
+            `${getSongBySongID_API_URL}?songID=${item}`
+          );
 
-      let userDataList = [];
-      myUser.forEach((doc) => {
-        userDataList.push(doc.data());
-      }); 
+          const songData = song.data;
 
-      const filteredData = userDataList.filter(item => item.isLove);
+          listSong.push(songData);
+        } catch (error) {
+          console.error("Error:", item, error);
+        }
+      });
 
-      res.status(200).json(filteredData);
+      await Promise.all(songPromises);
+
+      res.status(200).send(listSong);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -50,34 +58,46 @@ class ListenHistoryController {
   }
 
   async getListenHistoryByUserID(req, res) {
-    const userID = req.query.userID;
+    const listSongID = req.listSongID;
+    const listBaseSort = req.listBaseSort;
 
+    let listSong = [];
+
+    console.log(listBaseSort);
     try {
-      // Truy vấn dữ liệu người dùng từ Firestore
-      const userRef = db
-        .collection("listenHistory")
-        .where("userID", "==", userID);
-      const myUser = await userRef.get();
+      const songPromises = listSongID.map(async (item) => {
+        try {
+          const song = await axios.get(
+            `${getSongBySongID_API_URL}?songID=${item}`
+          );
 
-      let userDataList = [];
-      myUser.forEach((doc) => {
-        userDataList.push(doc.data());
-      }); 
+          const songData = song.data;
 
-      userDataList.sort((a, b) => {
-        if (a.lastListen._seconds !== b.lastListen._seconds) {
-            return b.lastListen._seconds - a.lastListen._seconds; // Sắp xếp giảm dần theo _seconds
+          listSong.push(songData);
+        } catch (error) {
+          console.error("Error:", item, error);
         }
-        return b.lastListen._nanoseconds - a.lastListen._nanoseconds; // Nếu _seconds bằng nhau, so sánh _nanoseconds
-    });
+      });
 
-      res.status(200).json(userDataList);
+      await Promise.all(songPromises);
+
+      // Tạo một ánh xạ từ id đến chỉ mục trong listA
+      const maplistBaseSort = listBaseSort.reduce((acc, item, index) => {
+        acc[item.songID] = index;
+        return acc;
+      }, {});
+
+      // Sắp xếp listB theo thứ tự của listA dựa trên id
+      listSong.sort((a, b) => {
+        return maplistBaseSort[a.songID] - maplistBaseSort[b.songID];
+      });
+
+      res.status(200).json(listSong);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   }
-  
 }
 
 module.exports = new ListenHistoryController();

@@ -27,6 +27,7 @@ router.get(
 router.get("/nameAlbum", songController.getSongByAlbumName);
 router.get("/nameArtist", songController.getSongByArtistName);
 router.get("/nameGenre", songController.getSongByGenreName);
+router.get("/songID", songController.getSongBySongID);
 router.post("/", upload.single("songFile"), songController.create);
 router.get("/", songController.index);
 
