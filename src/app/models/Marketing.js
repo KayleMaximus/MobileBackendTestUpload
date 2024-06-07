@@ -1,17 +1,19 @@
 const { db, storage, messaging } = require("../../config/db/firebase");
 
-const sendNotification = (user) => {
+const sendNotification = (notification) => {
 
     const topic = 'AdouTinTran';
 
+    console.log(notification.body);
+
     const message = {
         notification: {
-            title: 'Notification from Zeniit Deeptry',
-            body: 'Gửi theo yêu cầu',
-            image: 'https://firebasestorage.googleapis.com/v0/b/nodejsapp-89f00.appspot.com/o/images%2F029213fc-4bfd-4ffb-800e-72703c0c66d8?alt=media&token=328c9b79-660e-4a44-948a-a103402dc559'
+            title: notification.title,
+            body: notification.body,
+            image: notification.imageURL
           },
           data:{
-            name: 'tin'
+            songURL: "https://drive.google.com/uc?id=1myPWS6WLuVaEPmqeKzBOy8GPXDQcWMy3&export=download"
           },
 
         topic: topic

@@ -1,6 +1,8 @@
 const { db, storage, messaging } = require("../../config/db/firebase");
 const Notification = require("../models/Notification");
 const { v4: uuidv4 } = require("uuid");
+const sendNotification = require('../models/Marketing');
+
 
 class NotificationController {
   //[GET] /notifications
@@ -28,7 +30,13 @@ class NotificationController {
   async create(req, res) {
     try {
       const { title, body } = req.body;
+
+      console.log(title, body);
+
       const file = req.file;
+
+      console.log(file);
+
 
       const fileName = uuidv4(); // Generate a unique filename using UUID
       const destinationFileName = "images/" + fileName; // Use the generated filename
@@ -45,12 +53,15 @@ class NotificationController {
           expires: "01-01-3000",
         });
 
-      const newNotification = new Notification(title, body, fileURL);
+      const newNotification = new Notification(title, body, fileURL.toString());
       await db.collection("notifications").add({
         title: newNotification.title,
         body: newNotification.body,
         imageURL: newNotification.imageURL,
       });
+
+      sendNotification(newNotification);
+
       res.status(201).send("Notifications created successfully");
     } catch (error) {
       res.status(500).send("Internal Server Error");
