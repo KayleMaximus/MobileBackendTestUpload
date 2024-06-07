@@ -288,8 +288,9 @@ class SongController {
   }
 
   async getRecommendSongByUserID(req, res, next) { // Function này chỉ việc nhận và res.send thôi, còn lại middleware đã làm hết rồi
-    let listSong = req.listSong;
-    res.send(listSong);
+    let result = req.result;
+
+    res.send(result);
   }
 
   async getSongFromSQLite(req, res, next) {

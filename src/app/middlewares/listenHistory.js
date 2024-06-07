@@ -80,8 +80,6 @@ async function getListSongIDLoveByUserID(req, res, next) {
 async function getListenHistoryByUserID(req, res, next) {
   const userID = req.query.userID;
 
-  console.log(userID);
-
   try {
     // Truy vấn dữ liệu người dùng từ Firestore
     const userRef = db
@@ -108,10 +106,9 @@ async function getListenHistoryByUserID(req, res, next) {
       listSongID.push(item.songID);
     });
 
-    console.log(listSongID);
-
     req.listSongID = listSongID;
     req.listBaseSort = listRencent;
+
     next();
 
   } catch (error) {

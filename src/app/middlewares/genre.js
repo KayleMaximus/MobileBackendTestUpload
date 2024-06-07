@@ -14,6 +14,7 @@ function removeDuplicates(listGenre) {
 
 async function getGenreBySongID(req, res, next) {
     const listSongID = req.listSongID;
+    const genreCounts = req.genreCounts;
   
     let listGenre = [];
   
@@ -43,9 +44,8 @@ async function getGenreBySongID(req, res, next) {
     const cleanGenres = removeDuplicates(listGenre)
   
     req.listGenreName = cleanGenres;
-
-    console.log(cleanGenres);
-
+    req.genreCounts = genreCounts;
+    
     next();
   }
 
