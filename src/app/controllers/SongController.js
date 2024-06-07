@@ -8,6 +8,10 @@ const mm = require("music-metadata");
 const { v4: uuidv4 } = require("uuid");
 const Song = require("../models/Song");
 const sqlite = require("../../config/db/sqliteCloud");
+const axios = require("axios");
+
+const getSongBySongID_API_URL = "http://localhost:8383/" + "songs/songID";
+
 
 class SongController {
   //[GET] /user
@@ -255,17 +259,31 @@ class SongController {
   }
 
   async getRecentSongByUserID(req, res, next) {
-    let listRecentSong = req.listRecentSong;
+    const listSongID = req.listSongID;
 
-    if (listRecentSong.length <= 10) {
-      res.send(listRecentSong);
-    } else {
-      listRecentSong.sort(() => Math.random() - 0.5);
+    let listSong = [];
 
-      // Limit the list to the first 10 entries
-      listRecentSong = listRecentSong.slice(0, 10);
+    try {
+      const songPromises = listSongID.map(async (item) => {
+        try {
+          const song = await axios.get(
+            `${getSongBySongID_API_URL}?songID=${item}`
+          );
 
-      res.send(listRecentSong);
+          const songData = song.data;
+
+          listSong.push(songData);
+        } catch (error) {
+          console.error("Error:", item, error);
+        }
+      });
+
+      await Promise.all(songPromises);
+
+      res.send(listSong);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 

@@ -3,25 +3,24 @@ const { db } = require("../../config/db/firebase");
 const listenHistory = require("../utils/listenHistory");
 const axios = require("axios");
 
-const listenHistoryAPI_URL = process.env.API_URL + "listenHistory/userID";
 
-function handleRecentSong(listSong) {
-  const today = new Date();
+function handleRecent(list) {
+  // Tính thời gian hiện tại
+  const now = new Date();
 
-  const oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+  // Tính thời gian cách đây một tuần
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  const filteredData = listSong.filter((item) => {
-    // Convert lastListen string to Date object
-    const lastListenDate = new Date(item.lastListen);
+  // Chuyển đổi thời gian cách đây một tuần sang giây
+  const oneWeekAgoSeconds = Math.floor(oneWeekAgo.getTime() / 1000);
 
-    // Calculate the difference between today and lastListen in milliseconds
-    const timeDifference = today.getTime() - lastListenDate.getTime();
-
-    // Check if timeDifference is less than one week
-    return timeDifference < oneWeekInMilliseconds;
+  // Lọc các phần tử có lastListen nhỏ hơn một tuần
+  return list.filter(item => {
+      const lastListenTime = item.lastListen._seconds;
+      return lastListenTime > oneWeekAgoSeconds;
+  
   });
 
-  return filteredData;
 }
 
 async function checkHistoryExist(req, res, next) {
@@ -46,18 +45,6 @@ async function checkHistoryExist(req, res, next) {
     console.error("Error updating user: ", error);
     res.status(500).send("Internal Server Error");
   }
-}
-
-async function getAllListenHistoryByUserID(req, res, next) {
-  const userID = req.params.userID;
-
-  const response = await axios.get(`${listenHistoryAPI_URL}?userID=${userID}`);
-
-  const listRecentSong = handleRecentSong(response.data);
-
-  req.listRecentSong = listRecentSong;
-
-  next();
 }
 
 async function getListSongIDLoveByUserID(req, res, next) {
@@ -92,6 +79,9 @@ async function getListSongIDLoveByUserID(req, res, next) {
 
 async function getListenHistoryByUserID(req, res, next) {
   const userID = req.query.userID;
+
+  console.log(userID);
+
   try {
     // Truy vấn dữ liệu người dùng từ Firestore
     const userRef = db
@@ -104,7 +94,9 @@ async function getListenHistoryByUserID(req, res, next) {
       userDataList.push(doc.data());
     });
 
-    userDataList.sort((a, b) => {
+    const listRencent = handleRecent(userDataList)
+
+    listRencent.sort((a, b) => {
       if (a.lastListen._seconds !== b.lastListen._seconds) {
         return b.lastListen._seconds - a.lastListen._seconds; // Sắp xếp giảm dần theo _seconds
       }
@@ -112,7 +104,7 @@ async function getListenHistoryByUserID(req, res, next) {
     });
 
     let listSongID = [];
-    userDataList.map((item) => {
+    listRencent.map((item) => {
       listSongID.push(item.songID);
     });
 
@@ -128,7 +120,6 @@ async function getListenHistoryByUserID(req, res, next) {
 
 module.exports = {
   checkHistoryExist,
-  getAllListenHistoryByUserID,
   getListSongIDLoveByUserID,
   getListenHistoryByUserID,
 };
