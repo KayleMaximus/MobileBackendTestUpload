@@ -3,8 +3,26 @@ const { db } = require("../../config/db/firebase");
 const listenHistory = require("../utils/listenHistory");
 const axios = require("axios");
 
-const listenHistoryAPI_URL =
-  "https://mobilebackendtestupload-q7eh.onrender.com/listenHistory/userID";
+const listenHistoryAPI_URL = process.env.API_URL + "listenHistory/userID";
+
+function handleRecentSong(listSong) {
+  const today = new Date();
+
+  const oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+
+  const filteredData = listSong.filter((item) => {
+    // Convert lastListen string to Date object
+    const lastListenDate = new Date(item.lastListen);
+
+    // Calculate the difference between today and lastListen in milliseconds
+    const timeDifference = today.getTime() - lastListenDate.getTime();
+
+    // Check if timeDifference is less than one week
+    return timeDifference < oneWeekInMilliseconds;
+  });
+
+  return filteredData;
+}
 
 async function checkHistoryExist(req, res, next) {
   const { userID, songID } = req.body;
@@ -31,34 +49,15 @@ async function checkHistoryExist(req, res, next) {
 }
 
 async function getAllListenHistoryByUserID(req, res, next) {
-    const userID = req.params.userID;
+  const userID = req.params.userID;
 
   const response = await axios.get(`${listenHistoryAPI_URL}?userID=${userID}`);
 
-  const listRecentSong = handleRecentSong(response.data)
+  const listRecentSong = handleRecentSong(response.data);
 
   req.listRecentSong = listRecentSong;
 
   next();
-}
-
-function handleRecentSong(listSong) {
-    const today = new Date();
-
-    const oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
-
-    const filteredData = listSong.filter(item => {
-        // Convert lastListen string to Date object
-        const lastListenDate = new Date(item.lastListen);
-    
-        // Calculate the difference between today and lastListen in milliseconds
-        const timeDifference = today.getTime() - lastListenDate.getTime();
-    
-        // Check if timeDifference is less than one week
-        return timeDifference < oneWeekInMilliseconds;
-      });
-    
-      return filteredData;
 }
 
 module.exports = { checkHistoryExist, getAllListenHistoryByUserID };

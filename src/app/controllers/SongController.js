@@ -198,6 +198,35 @@ class SongController {
     res.send(list);
   }
 
+  async getSongByGenreName(req, res, next) {
+    const nameGenre = req.query.nameGenre;
+    let list = [];
+
+    await db
+      .collection("songs")
+      .where("genre", "==", nameGenre)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const songData = doc.data();
+          const song = new Song(
+            songData.songID,
+            songData.name,
+            songData.artist,
+            songData.genre,
+            songData.album,
+            songData.views,
+            songData.createdAt,
+            songData.songURL,
+            songData.imageURL
+          );
+          list.push(song);
+        });
+      })
+      .catch(next);
+    res.send(list);
+  }
+
   async getRecentSongByUserID(req, res, next) {
     let listRecentSong = req.listRecentSong;
 
@@ -213,22 +242,9 @@ class SongController {
     }
   }
 
-  async getRecommendSongByUserID(req, res, next) {
-    console.log("getRecommendSongByUserID");
-    let listSongID = req.listSongID;
-
-    res.send(listSongID);
-
-    // if(listRecentSong.length <= 10) {
-    //     res.send(listRecentSong);
-    // } else {
-    //     listRecentSong.sort(() => Math.random() - 0.5);
-
-    //     // Limit the list to the first 10 entries
-    //     listRecentSong = listRecentSong.slice(0, 10);
-
-    //     res.send(listRecentSong);
-    // }
+  async getRecommendSongByUserID(req, res, next) { // Function này chỉ việc nhận và res.send thôi, còn lại middleware đã làm hết rồi
+    let listSong = req.listSong;
+    res.send(listSong);
   }
 
   async getSongFromSQLite(req, res, next) {

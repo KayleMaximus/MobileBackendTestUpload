@@ -45,7 +45,7 @@ class GenreController {
             .then((snapshot) => {
               snapshot.forEach((doc) => {
                 const songData = doc.data();
-                return songData.genre;
+                res.send(songData.genre);
               });
             })
         } catch(error){
