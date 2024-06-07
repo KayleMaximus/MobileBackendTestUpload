@@ -4,11 +4,10 @@ const router = express.Router();
 const listenHistoryController = require('../app/controllers/ListenHistoryController');
 const {checkHistoryExist} = require('../app/middlewares/listenHistory');
 
-router.patch('/updateIsLove', listenHistoryController.updateIsLove);
-router.get('/bothID', listenHistoryController.getHistoryByUserIDAndSongID);
-router.get('/userID', listenHistoryController.getHistoryByUserID);
-router.get('/',  listenHistoryController.index);
+router.get('/getSongLove', listenHistoryController.getSongLoveByUserID);
+router.get('/getListenHistory', listenHistoryController.getListenHistoryByUserID);
 router.post('/', checkHistoryExist);
+router.get('/',  listenHistoryController.index);
 
 module.exports = router;
 

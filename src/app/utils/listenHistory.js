@@ -1,59 +1,86 @@
 const { db } = require("../../config/db/firebase");
 const ListenHistory = require("../models/ListenHistory");
 
-
 async function create(req, res) {
-    try{
-        const { userID, songID, lastListen, isLove } = req.body;
+  try {
+    const { userID, songID, isLove, count } = req.body;
 
-        const newListenHistory = new ListenHistory(userID, songID, lastListen, isLove, 1);
-        
-        console.log(newListenHistory);
+    const now = new Date();
 
-        await db.collection('listenHistory').add({
-            userID: newListenHistory.userID,
-            songID: newListenHistory.songID,
-            lastListen: newListenHistory.lastListen,
-            isLove: newListenHistory.isLove,
-            count: newListenHistory.count,
-        }); 
+    const newListenHistory = new ListenHistory(
+      userID,
+      songID,
+      now,
+      isLove,
+      count
+    );
 
-        res.send("Listen History created successfully");
-    } catch(error){
-        res.status(500).send("Internal Server Error"); 
-    }
+    console.log(newListenHistory);
+
+    await db.collection("listenHistory").add({
+      userID: newListenHistory.userID,
+      songID: newListenHistory.songID,
+      lastListen: newListenHistory.lastListen,
+      isLove: newListenHistory.isLove,
+      count: newListenHistory.count,
+    });
+
+    res.send("Listen History created successfully");
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
 }
 
 async function update(req, res) {
-    const { userID, songID, lastListen, isLove, count } = req.body; // Destructure data from historyData
+  const { userID, songID, isLove, count } = req.body; // Destructure data from historyData
 
-    console.log( userID, songID, lastListen, isLove, count);
+  console.log(userID, songID, isLove, count);
 
-    const updatedData = {};
+  try {
+    // Tìm tài liệu có trường id phù hợp
+    const historyRef = db
+      .collection("listenHistory")
+      .where("userID", "==", userID)
+      .where("songID", "==", songID)
+      .limit(1);
 
-    if (lastListen) updatedData.lastListen = lastListen;
-    if (isLove) updatedData.isLove = isLove;
-    if (count) updatedData.count = count + 1;
+    let history;
 
-    try {
-        // Tìm tài liệu có trường id phù hợp
-        const historyRef = db.collection('listenHistory')
-            .where('userID', '==', userID)
-            .where('songID', '==', songID).limit(1);
-        const history = await historyRef.get();
+    await historyRef.get().then((snapshot) => {
+      snapshot.forEach((doc) => {
+        const historyData = doc.data();
+        history = new ListenHistory(
+          historyData.userID,
+          historyData.songID,
+          historyData.lastListen,
+          historyData.isLove,
+          historyData.count
+        );
+      });
+    });
 
-        // Cập nhật chỉ các trường đã được cung cấp trong updatedData
-        const doc = history.docs[0];
-        await doc.ref.update(updatedData);
+    const updateData = {};
 
-        console.log("Listen History updated successfully");
-        res.send("Listen History updated successfully");
-    } catch(error){
-        res.status(500).send("Internal Server Error"); 
-    }
+    const now = new Date();
+
+    updateData.lastListen = now;
+    if (isLove) updateData.isLove = isLove;
+    if (count) updateData.count = history.count + count;
+
+    const historyToSave = await historyRef.get();
+    // Cập nhật chỉ các trường đã được cung cấp trong updatedData
+    const doc = historyToSave.docs[0];
+
+    await doc.ref.update(updateData);
+
+    console.log("Listen History updated successfully");
+    res.send("Listen History updated successfully");
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
 }
 
 module.exports = {
-    create,
-    update,
+  create,
+  update,
 };
