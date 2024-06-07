@@ -108,8 +108,10 @@ async function getListenHistoryByUserID(req, res, next) {
       listSongID.push(item.songID);
     });
 
+    console.log(listSongID);
+
     req.listSongID = listSongID;
-    req.listBaseSort = userDataList;
+    req.listBaseSort = listRencent;
     next();
 
   } catch (error) {
