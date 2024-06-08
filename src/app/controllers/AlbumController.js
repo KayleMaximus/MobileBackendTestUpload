@@ -209,6 +209,29 @@ class AlbumController {
 
     res.status(200).send(albumData);
   }
+
+  async getAlbumByAlbumName(req, res, next) {
+    const albumName = req.query.albumName;
+    let album;
+    await db
+      .collection("albums")
+      .where("name", "==", albumName)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const albumData = doc.data();
+          album = new Album(
+            albumData.albumID,
+            albumData.name,
+            albumData.artist,
+            albumData.imageURL,
+            albumData.listSong,
+          );
+        });
+      })
+      .catch(next);
+    res.send(album);
+  }
 }
 
 module.exports = new AlbumController();
