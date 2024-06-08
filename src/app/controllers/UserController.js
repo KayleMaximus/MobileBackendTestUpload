@@ -2,7 +2,7 @@ require('dotenv').config();
 const { db, storage } = require("../../config/db/firebase");
 const User = require("../models/User");
 const jwt = require('jsonwebtoken');
-const sendNotification = require('../models/Marketing');
+//const sendNotification = require('../models/Marketing');
 
 class UserController {
 

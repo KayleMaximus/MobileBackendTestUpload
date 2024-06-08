@@ -64,7 +64,7 @@ async function update(req, res) {
     const now = new Date();
 
     updateData.lastListen = now;
-    if (isLove) updateData.isLove = isLove;
+    if (isLove != undefined || isLove != null) updateData.isLove = isLove;
     if (count) updateData.count = history.count + count;
 
     const historyToSave = await historyRef.get();
