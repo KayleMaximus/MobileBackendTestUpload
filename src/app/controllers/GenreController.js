@@ -1,6 +1,7 @@
 const { db, storage } = require("../../config/db/firebase");
 const Genre = require("../models/Genre");
 const { v4: uuidv4 } = require('uuid');
+const generateRandomID = require("../utils/randomID");
 
 
 class GenreController {
@@ -19,8 +20,10 @@ class GenreController {
     }
 
     async create(req, res) {
+    const genreID = generateRandomID(23);
+
         try{
-            const { genreID, name } = req.body;
+            const { name } = req.body;
 
             const newGenre = new Genre(genreID, name);
             await db.collection('genres').add({
