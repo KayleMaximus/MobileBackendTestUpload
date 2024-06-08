@@ -5,10 +5,8 @@ const { v4: uuidv4 } = require("uuid");
 const generateRandomID = require("../utils/randomID");
 const axios = require("axios");
 
-//const getSongBySongName_API_URL = process.env.API_URL + "songs/songID";
-const getSongBySongName_API_URL = 'http://localhost:8383/' + "songs/songName";
-
-
+//const getSongBySongName_API_URL = process.env.API_URL + "songs/songName";
+const getSongBySongName_API_URL = "http://localhost:8383/" + "songs/songName";
 
 class AlbumController {
   async index(req, res, next) {
@@ -30,6 +28,44 @@ class AlbumController {
         });
       })
       .catch(next);
+
+    try {
+      const albumPromises = list.map(async (itemAlbum) => {
+        console.log(itemAlbum.name);
+        let listSong = [];
+
+        try {
+          const songPromises = itemAlbum.listSong.map(async (item) => {
+            try {
+              const song = await axios.get(
+                `${getSongBySongName_API_URL}?songName=${item}`
+              );
+
+              const songData = song.data;
+              console.log(songData);
+
+              listSong.push(songData);
+            } catch (error) {
+              console.error("Error:", item, error);
+            }
+          });
+
+          await Promise.all(songPromises);
+        } catch (error) {
+          console.error("Error fetching user:", error);
+          res.status(500).json({ error: "Internal server error" });
+        }
+
+        itemAlbum.listSong = listSong;
+        
+        console.log(listSong);
+
+        });
+      await Promise.all(albumPromises);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
     res.send(list);
   }
 
@@ -135,42 +171,41 @@ class AlbumController {
         .where("albumID", "==", albumID)
         .limit(1)
         .get();
-    
+
       if (!albumSnapshot.empty) {
         const albumDoc = albumSnapshot.docs[0];
         albumData = albumDoc.data();
       } else {
-        console.log('No album found with the given albumID');
+        console.log("No album found with the given albumID");
       }
     } catch (error) {
-      console.error('Error getting album:', error);
+      console.error("Error getting album:", error);
     }
 
     let listSong = [];
 
-      try {
-        const songPromises = albumData.listSong.map(async (item) => {
-          try {
-            const song = await axios.get(
-              `${getSongBySongName_API_URL}?songName=${item}`
-            );
-  
-            const songData = song.data;
-  
-            listSong.push(songData);
-          } catch (error) {
-            console.error("Error:", item, error);
-          }
-        });
-  
-        await Promise.all(songPromises);
-  
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
-    
-      albumData.listSong = listSong
+    try {
+      const songPromises = albumData.listSong.map(async (item) => {
+        try {
+          const song = await axios.get(
+            `${getSongBySongName_API_URL}?songName=${item}`
+          );
+
+          const songData = song.data;
+
+          listSong.push(songData);
+        } catch (error) {
+          console.error("Error:", item, error);
+        }
+      });
+
+      await Promise.all(songPromises);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+
+    albumData.listSong = listSong;
 
     res.status(200).send(albumData);
   }
