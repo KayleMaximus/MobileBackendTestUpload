@@ -55,19 +55,6 @@ class GenreController {
             res.status(500).send("Internal Server Error"); 
         }
     }
-
-    async getAllGenreName(req, res, next){
-        const list = [];
-        await db.collection('genres').get()
-            .then(snapshot => {
-                snapshot.forEach(doc => {
-                    const genreData = doc.data();
-                    list.push(genreData.name);
-                });
-            })
-            .catch(next);
-        res.send(list);
-    }
 }
 
 module.exports = new GenreController;
