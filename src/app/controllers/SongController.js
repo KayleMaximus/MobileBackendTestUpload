@@ -11,7 +11,7 @@ const sqlite = require("../../config/db/sqliteCloud");
 const axios = require("axios");
 const sendNotification = require('../utils/notification');
 
-const getSongBySongID_API_URL = "http://localhost:8383/" + "songs/songID";
+const getSongBySongID_API_URL = process.env.API_URL + "songs/songID";
 
 
 class SongController {
