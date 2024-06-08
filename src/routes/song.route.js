@@ -5,12 +5,24 @@ const multer = require("multer");
 const songController = require("../app/controllers/SongController");
 const {
   getListenHistoryByUserID,
+  getListenHistoryByUserID_Forgotten,
 } = require("../app/middlewares/listenHistory");
-const { getSongByGenre, getSongBySongID } = require("../app/middlewares/song");
+const {
+  getSongByGenre,
+  getSongBySongID,
+  handleForgotten,
+} = require("../app/middlewares/song");
 const getGenreBySongID = require("../app/middlewares/genre");
 const upload = multer();
 
 router.get("/songSQL", songController.getSongFromSQLite);
+router.get(
+  "/forgotten",
+  getListenHistoryByUserID_Forgotten,
+  getSongBySongID,
+  handleForgotten,
+  songController.getForgotenFavoriteSongByUserID
+);
 router.get(
   "/recommend",
   getListenHistoryByUserID,

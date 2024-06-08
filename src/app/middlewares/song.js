@@ -70,6 +70,30 @@ async function getSongBySongID(req, res, next) {
   const genreCounts = handleRecommend(listSong, listListenHistory);
 
   req.genreCounts = genreCounts;
+  req.listSong = listSong;
+
+  next();
+}
+
+function handleForgotten(req, res, next) {
+  const listListenHistory = req.listBaseSort;
+  const listSong = req.listSong;
+
+  let countMap = {};
+  listListenHistory.forEach((item) => {
+    countMap[item.songID] = item.count;
+  });
+
+  let result = listSong
+    .slice()
+    .sort((a, b) => countMap[b.songID] - countMap[a.songID]);
+
+  // Giới hạn số phần tử không vượt quá 10
+  if (result.length > 10) {
+    result = result.slice(0, 10);
+  }
+
+  req.result = result;
 
   next();
 }
@@ -143,12 +167,11 @@ function handleRecommendFinal(listSong, genreCounts) {
     });
   });
 
-  if(result.length <= 10) {
+  if (result.length <= 10) {
     return result;
   } else {
     return result.slice(0, 10);
   }
 }
 
-
-module.exports = { getSongByGenre, getSongBySongID };
+module.exports = { getSongByGenre, getSongBySongID, handleForgotten };

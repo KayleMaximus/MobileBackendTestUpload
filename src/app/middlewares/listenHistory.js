@@ -23,6 +23,25 @@ function handleRecent(list) {
 
 }
 
+function handleNot_Recent(list) {
+  // Tính thời gian hiện tại
+  const now = new Date();
+
+  // Tính thời gian cách đây một tuần
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  // Chuyển đổi thời gian cách đây một tuần sang giây
+  const oneWeekAgoSeconds = Math.floor(oneWeekAgo.getTime() / 1000);
+
+  // Lọc các phần tử có lastListen nhỏ hơn một tuần
+  return list.filter(item => {
+      const lastListenTime = item.lastListen._seconds;
+      return lastListenTime < oneWeekAgoSeconds;
+  
+  });
+
+}
+
 async function checkHistoryExist(req, res, next) {
   const { userID, songID } = req.body;
   try {
@@ -117,8 +136,42 @@ async function getListenHistoryByUserID(req, res, next) {
   }
 }
 
+async function getListenHistoryByUserID_Forgotten(req, res, next) {
+  const userID = req.query.userID;
+
+  try {
+    // Truy vấn dữ liệu người dùng từ Firestore
+    const userRef = db
+      .collection("listenHistory")
+      .where("userID", "==", userID);
+    const myUser = await userRef.get();
+
+    let songDataList = [];
+    myUser.forEach((doc) => {
+      songDataList.push(doc.data());
+    });
+
+    const listRencent = handleNot_Recent(songDataList)
+
+    let listSongID = [];
+    listRencent.map((item) => {
+      listSongID.push(item.songID);
+    });
+
+    req.listSongID = listSongID;
+    req.listBaseSort = listRencent;
+
+    next();
+
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 module.exports = {
   checkHistoryExist,
   getListSongIDLoveByUserID,
   getListenHistoryByUserID,
+  getListenHistoryByUserID_Forgotten
 };

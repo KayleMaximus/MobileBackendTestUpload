@@ -298,6 +298,12 @@ class SongController {
     res.send(result);
   }
 
+  async getForgotenFavoriteSongByUserID(req, res, next) { // Function này chỉ việc nhận và res.send thôi, còn lại middleware đã làm hết rồi
+    const result = req.result;
+
+    res.status(200).send(result);
+  }
+
   async getSongFromSQLite(req, res, next) {
     console.log("toidayroi");
 
