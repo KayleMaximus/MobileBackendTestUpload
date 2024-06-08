@@ -2,7 +2,6 @@ require('dotenv').config();
 const { db, storage } = require("../../config/db/firebase");
 const User = require("../models/User");
 const jwt = require('jsonwebtoken');
-//const sendNotification = require('../models/Marketing');
 
 class UserController {
 
@@ -43,8 +42,6 @@ class UserController {
             res.header('x-auth-token', token).send("User created successfully");
 
             // res.status(201).send("User created successfully");
-            
-            // sendNotification(newUser);  
         } catch(error){
             res.status(500).send("Internal Server Error"); 
         }

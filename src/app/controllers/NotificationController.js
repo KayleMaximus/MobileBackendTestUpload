@@ -1,7 +1,7 @@
 const { db, storage, messaging } = require("../../config/db/firebase");
 const Notification = require("../models/Notification");
 const { v4: uuidv4 } = require("uuid");
-const sendNotification = require('../models/Marketing');
+//const sendNotification = require('../models/Marketing');
 
 
 class NotificationController {
@@ -60,7 +60,7 @@ class NotificationController {
         imageURL: newNotification.imageURL,
       });
 
-      sendNotification(newNotification);
+      //sendNotification(newNotification);
 
       res.status(201).send("Notifications created successfully");
     } catch (error) {

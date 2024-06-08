@@ -9,6 +9,7 @@ const { v4: uuidv4 } = require("uuid");
 const Song = require("../models/Song");
 const sqlite = require("../../config/db/sqliteCloud");
 const axios = require("axios");
+const sendNotification = require('../utils/notification');
 
 const getSongBySongID_API_URL = "http://localhost:8383/" + "songs/songID";
 
@@ -135,6 +136,10 @@ class SongController {
         songURL: newSong.songURL,
         imageURL: newSong.imageURL,
       });
+
+      console.log("toidayroi");
+
+      sendNotification("media", newSong);
 
       res.status(201).send("Song created successfully");
     } catch (error) {

@@ -2,6 +2,8 @@ const { db, storage } = require("../../config/db/firebase");
 const { v4: uuidv4 } = require("uuid");
 const Banner = require("../models/Banner");
 const generateRandomID = require("../utils/randomID");
+const sendNotification = require('../utils/notification');
+
 
 class BannerController {
   async index(req, res, next) {
@@ -54,6 +56,9 @@ class BannerController {
         imageURL: newBanner.imageURL,
         link: newBanner.link,
       });
+
+      sendNotification("marketing", newBanner);
+
       res.status(201).send("Banner created successfully");
     } catch (error) {
       res.status(500).send("Internal Server Error");
