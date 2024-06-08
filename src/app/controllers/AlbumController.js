@@ -1,7 +1,14 @@
 const { db, storage } = require("../../config/db/firebase");
 const Album = require("../models/Album");
+const Song = require("../models/Song");
 const { v4: uuidv4 } = require("uuid");
 const generateRandomID = require("../utils/randomID");
+const axios = require("axios");
+
+//const getSongBySongName_API_URL = process.env.API_URL + "songs/songID";
+const getSongBySongName_API_URL = 'http://localhost:8383/' + "songs/songName";
+
+
 
 class AlbumController {
   async index(req, res, next) {
@@ -95,7 +102,10 @@ class AlbumController {
 
     let list = [];
 
-    await db.collection('albums').where('artist', '==', nameArtist).get()
+    await db
+      .collection("albums")
+      .where("artist", "==", nameArtist)
+      .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
           const albumData = doc.data();
@@ -112,6 +122,57 @@ class AlbumController {
       .catch(next);
 
     res.send(list);
+  }
+
+  async getAlbumByAlbumID(req, res, next) {
+    const albumID = req.query.albumID;
+
+    let albumData;
+
+    try {
+      const albumSnapshot = await db
+        .collection("albums")
+        .where("albumID", "==", albumID)
+        .limit(1)
+        .get();
+    
+      if (!albumSnapshot.empty) {
+        const albumDoc = albumSnapshot.docs[0];
+        albumData = albumDoc.data();
+      } else {
+        console.log('No album found with the given albumID');
+      }
+    } catch (error) {
+      console.error('Error getting album:', error);
+    }
+
+    let listSong = [];
+
+      try {
+        const songPromises = albumData.listSong.map(async (item) => {
+          try {
+            const song = await axios.get(
+              `${getSongBySongName_API_URL}?songName=${item}`
+            );
+  
+            const songData = song.data;
+  
+            listSong.push(songData);
+          } catch (error) {
+            console.error("Error:", item, error);
+          }
+        });
+  
+        await Promise.all(songPromises);
+  
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    
+      albumData.listSong = listSong
+
+    res.status(200).send(albumData);
   }
 }
 

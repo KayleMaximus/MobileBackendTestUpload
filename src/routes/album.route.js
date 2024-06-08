@@ -7,6 +7,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 router.get('/nameSong', albumController.getAlbumtBySongName);
 router.get('/nameArtist', albumController.getAlbumtByArtistName);
+router.get('/albumID', albumController.getAlbumByAlbumID);
 router.get('/', albumController.index);
 router.post('/', upload.single('imageURL'), albumController.create);
 

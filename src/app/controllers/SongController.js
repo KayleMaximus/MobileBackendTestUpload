@@ -263,6 +263,33 @@ class SongController {
     res.send(song);
   }
 
+  async getSongBySongName(req, res, next) {
+    const songName = req.query.songName;
+    let song;
+    await db
+      .collection("songs")
+      .where("name", "==", songName)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const songData = doc.data();
+          song = new Song(
+            songData.songID,
+            songData.name,
+            songData.artist,
+            songData.genre,
+            songData.album,
+            songData.views,
+            songData.createdAt,
+            songData.songURL,
+            songData.imageURL
+          );
+        });
+      })
+      .catch(next);
+    res.send(song);
+  }
+
   async getRecentSongByUserID(req, res, next) {
     const listSongID = req.listSongID;
 
