@@ -1,14 +1,12 @@
 const http = require('http');
 const socketIo = require('socket.io');
-
-const server = http.createServer();
+const app = express();
+const server = http.createServer(app);
 const io = socketIo(server);
-
 class PeerController {
 
     //[GET] /home
     async index(req, res){
-
       io.on('connection', (socket) => {
         console.log('A user connected');
     
