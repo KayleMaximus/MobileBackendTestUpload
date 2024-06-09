@@ -1,1 +1,90 @@
-<h1>MAIN</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Chat</title>
+</head>
+<body>
+    <h1>Welcome to the Socket.IO chat!</h1>
+    <input type="text" id="newRoom" placeholder="Enter room name to create">
+    <button id="createRoom">Create Room</button>
+    <h2>Available Rooms:</h2>
+    <ul id="roomList"></ul>
+    <input type="text" id="joinRoomInput" placeholder="Enter room name to join">
+    <button id="joinRoom">Join Room</button>
+    <div id="chat">
+        <div id="messages"></div>
+        <input type="text" id="message" placeholder="Enter message">
+        <button id="sendMessage">Send</button>
+    </div>
+    <script src="https://cdn.socket.io/socket.io-1.4.0.js"></script>
+    <script>
+    const socket = io();
+    let currentRoom = '';
+
+    document.getElementById('createRoom').addEventListener('click', () => {
+        const roomName = document.getElementById('newRoom').value;
+        if (roomName) {
+            console.log(`Creating room: ${roomName}`);
+            socket.emit('createRoom', roomName);
+        }
+    });
+
+    socket.on('roomCreated', (roomName) => {
+        console.log('Room created:', roomName);
+    });
+
+    socket.on('roomList', (rooms) => {
+        const roomList = document.getElementById('roomList');
+        roomList.innerHTML = '';
+        rooms.forEach((room) => {
+            const li = document.createElement('li');
+            li.textContent = room;
+            roomList.appendChild(li);
+        });
+    });
+
+    document.getElementById('joinRoom').addEventListener('click', () => {
+        const roomName = document.getElementById('joinRoomInput').value;
+        if (roomName) {
+            currentRoom = roomName;
+            console.log(`Joining room: ${roomName}`);
+            socket.emit('joinRoom', roomName);
+        }
+    });
+
+    document.getElementById('sendMessage').addEventListener('click', () => {
+        const message = document.getElementById('message').value;
+        if (message && currentRoom) {
+            console.log(`Sending message to room ${currentRoom}: ${message}`);
+            socket.emit('message', { room: currentRoom, message: message });
+            document.getElementById('message').value = '';
+        }
+    });
+
+    socket.on('userConnected', (data) => {
+        console.log('User connected:', data.id);
+        console.log('Users in room:', data.users);
+    });
+
+    socket.on('userDisconnected', (data) => {
+        console.log('User disconnected:', data.id);
+        console.log('Users in room:', data.users);
+    });
+
+    socket.on('message', (message) => {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message;
+        messagesDiv.appendChild(messageElement);
+    });
+
+    // Fetch initial room list
+    socket.on('connect', () => {
+        console.log('Connected to server');
+        socket.emit('requestRoomList');
+    });
+</script>
+</body>
+</html>
