@@ -37,28 +37,28 @@ route(app);
 io.on('connection', (socket) => {
   console.log("User connected");
 
-  socket.on('joinRoom', (room) => {
-      socket.join(room);
-      console.log(`User joined room ${room}`);
-  });
+  // socket.on('joinRoom', (room) => {
+  //     socket.join(room);
+  //     console.log(`User joined room ${room}`);
+  // });
 
-  socket.on('sendMessage', (room, message) => {
-      io.to(room).emit('message', message);
-  });
-
-  // socket.on('on-chat', data => {
-  //     io.emit('user-chat', data)
-  // })
+  // socket.on('sendMessage', (room, message) => {
+  //     io.to(room).emit('message', message);
+  // });
 
   socket.on('on-chat', data => {
-      console.log(data);
-      io.to(data.roomName).emit('user-chat', data.message);
-  });
+      io.emit('user-chat', data)
+  })
+
+  // socket.on('on-chat', data => {
+  //     console.log(data);
+  //     io.to(data.roomName).emit('user-chat', data.message);
+  // });
 
   socket.on('disconnect', () => {
       console.log('User disconnected');
   });
 })
 
-
 server.listen(port, () => console.log(`Server has started on ${port}`));
+
