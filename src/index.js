@@ -34,64 +34,31 @@ app.set('views', path.join(__dirname, 'resources', 'views'));
 const port = process.env.PORT || 8383;
 route(app);
 
-let rooms = {}; // Object to store rooms and their users
+io.on('connection', (socket) => {
+  console.log("User connected");
 
-io.on("connection", (socket) => {
-  console.log("A user connected", socket.id);
-
-  socket.on('requestRoomList', () => {
-    socket.emit('roomList', Object.keys(rooms));
+  socket.on('joinRoom', (room) => {
+      socket.join(room);
+      console.log(`User joined room ${room}`);
   });
 
-  socket.on("createRoom", (roomName) => {
-    console.log(`Creating room: ${roomName}`);
-    if (!rooms[roomName]) {
-      rooms[roomName] = [];
-      socket.join(roomName);
-      rooms[roomName].push(socket.id);
-      io.to(roomName).emit("roomCreated", roomName);
-      io.emit("roomList", Object.keys(rooms));
-    } else {
-      console.log(`Room ${roomName} already exists`);
-    }
+  socket.on('sendMessage', (room, message) => {
+      io.to(room).emit('message', message);
   });
 
-  socket.on("joinRoom", (roomName) => {
-    console.log(`Joining room: ${roomName}`);
-    if (rooms[roomName]) {
-      socket.join(roomName);
-      rooms[roomName].push(socket.id);
-      io.to(roomName).emit("userConnected", {
-        id: socket.id,
-        users: rooms[roomName],
-      });
-    } else {
-      console.log(`Room ${roomName} does not exist`);
-    }
+  // socket.on('on-chat', data => {
+  //     io.emit('user-chat', data)
+  // })
+
+  socket.on('on-chat', data => {
+      console.log(data);
+      io.to(data.roomName).emit('user-chat', data.message);
   });
 
-  socket.on("message", (data) => {
-    console.log(`Message received in room ${data.room}: ${data.message}`);
-    io.to(data.room).emit("message", data.message);
+  socket.on('disconnect', () => {
+      console.log('User disconnected');
   });
-
-  socket.on("disconnect", () => {
-    console.log("A user disconnected", socket.id);
-    for (let room in rooms) {
-      rooms[room] = rooms[room].filter((id) => id !== socket.id);
-      if (rooms[room].length === 0) {
-        delete rooms[room];
-        io.emit("roomList", Object.keys(rooms));
-      } else {
-        io.to(room).emit("userDisconnected", {
-          id: socket.id,
-          users: rooms[room],
-        });
-      }
-    }
-  });
-});
+})
 
 
-
-app.listen(port, () => console.log(`Server has started on ${port}`));
+server.listen(port, () => console.log(`Server has started on ${port}`));
