@@ -13,7 +13,7 @@ class UserController {
                 snapshot.forEach(doc => {
                     const userData = doc.data();
                     const user = new User(userData.userID, userData.username, 
-                         userData.email, userData.signInMethod, userData.imageURL);
+                         userData.email, userData.role, userData.expriredDatePrimeum, userData.signInMethod, userData.imageURL);
                     list.push(user);
                 });
             })
@@ -25,21 +25,28 @@ class UserController {
     async create(req, res) {
         try{
             const { userID, username, email, signInMethod, imageURL } = req.body;
-            const newUser = new User(userID, username, email, signInMethod, imageURL);
+            const role = "Normal";
+            const expriredDatePrimeum = "None";
+            const newUser = new User(userID, username, email, role, expriredDatePrimeum, signInMethod, imageURL);
             
             await db.collection('users').add({
                 userID: newUser.userID,
                 username: newUser.username,
                 email: newUser.email,
+                role: newUser.role,
+                expriredDatePrimeum: newUser.expriredDatePrimeum,
                 signInMethod: newUser.signInMethod,
                 imageURL: newUser.imageURL,
             });
 
-            const token = newUser.generateAuthToken()
+            // const token = newUser.generateAuthToken()
 
-            //res.send(token);
+            // //res.send(token);
 
-            res.header('x-auth-token', token).send("User created successfully");
+            // res.header('x-auth-token', token).send("User created successfully");
+
+
+            res.status(200).send("User created successfully");
 
             // res.status(201).send("User created successfully");
         } catch(error){
@@ -48,15 +55,12 @@ class UserController {
     }
 
     async update(req, res) {
-        const userID = req.params.userID;
-        const { username, email, signInMethod, imageURL } = req.body;
+        const { userID, username, imageURL } = req.body;
       
         // Tạo một object JSON chứa các trường cần cập nhật
         const updatedData = {};
 
         if (username) updatedData.username = username;
-        if (email) updatedData.email = email;
-        if (signInMethod) updatedData.signInMethod = signInMethod;
         if (imageURL) updatedData.imageURL = imageURL;
 
         try {
@@ -72,8 +76,14 @@ class UserController {
             // Cập nhật chỉ các trường đã được cung cấp trong updatedData
             const doc = myUser.docs[0];
             await doc.ref.update(updatedData);
+
+            if(updatedData.imageURL) {
+                res.status(200).send(updatedData.imageUR);
+
+            } else {
+                res.status(200).send("User updated successfully");
+            }
     
-            res.status(200).send("User updated successfully");
         } catch(error) {
             console.error('Error updating user: ', error);
             res.status(500).send("Internal Server Error"); 

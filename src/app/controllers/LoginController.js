@@ -20,7 +20,7 @@ class LoginController {
                 userData = doc.data();
             }); // Lấy dữ liệu người dùng từ Firestore
 
-            if (userData.password === password && userData.isAdmin === true) {
+            if (userData.password === password && userData.role === "admin") {
               console.log(userData);
               const token = await generateAuthToken(userData);
               console.log(token);
