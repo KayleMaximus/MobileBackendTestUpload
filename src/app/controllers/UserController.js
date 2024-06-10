@@ -13,7 +13,7 @@ class UserController {
                 snapshot.forEach(doc => {
                     const userData = doc.data();
                     const user = new User(userData.userID, userData.username, 
-                         userData.email, userData.role, userData.expriredDatePrimeum, userData.signInMethod, userData.imageURL);
+                         userData.email, userData.role, userData.expiredDatePremium, userData.signInMethod, userData.imageURL);
                     list.push(user);
                 });
             })
@@ -26,15 +26,17 @@ class UserController {
         try{
             const { userID, username, email, signInMethod, imageURL } = req.body;
             const role = "Normal";
-            const expriredDatePrimeum = "None";
-            const newUser = new User(userID, username, email, role, expriredDatePrimeum, signInMethod, imageURL);
+            const expiredDatePremium = "None";
+            const newUser = new User(userID, username, email, role, expiredDatePremium, signInMethod, imageURL);
+
+            console.log(newUser);
             
             await db.collection('users').add({
                 userID: newUser.userID,
                 username: newUser.username,
                 email: newUser.email,
                 role: newUser.role,
-                expriredDatePrimeum: newUser.expriredDatePrimeum,
+                expiredDatePremium: newUser.expiredDatePremium,
                 signInMethod: newUser.signInMethod,
                 imageURL: newUser.imageURL,
             });
