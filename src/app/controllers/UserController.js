@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { db, storage } = require("../../config/db/firebase");
+const { db } = require("../../config/db/firebase");
 const User = require("../models/User");
 const jwt = require('jsonwebtoken');
 

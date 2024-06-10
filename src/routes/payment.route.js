@@ -1,9 +1,10 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const paymentController = require('../app/controllers/PaymentController');
+const paymentController = require("../app/controllers/PaymentController");
+const handlePayment = require("../app/middlewares/payment");
 
-router.post("/upgradePremium" , paymentController.upgradePremium);
-router.post("/" , paymentController.accuracy);
+router.post("/upgradePremium", handlePayment, paymentController.upgradePremium);
+router.post("/", paymentController.accuracy);
 
 module.exports = router;
