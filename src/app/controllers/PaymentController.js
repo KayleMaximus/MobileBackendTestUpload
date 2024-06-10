@@ -53,15 +53,17 @@ class PaymentController {
 
       try {
         // Tìm tài liệu có trường id phù hợp
-        const adminRef = db.collection("users").where("userID", "==", "THK88").limit(1);
+        const adminRef = db
+          .collection("users")
+          .where("userID", "==", "THK88")
+          .limit(1);
         let adminTreasury;
         await adminRef.get().then((snapshot) => {
-            snapshot.forEach((doc) => {
-              const userData = doc.data();
-              adminTreasury = userData.treasury;
-              
-            });
+          snapshot.forEach((doc) => {
+            const userData = doc.data();
+            adminTreasury = userData.treasury;
           });
+        });
 
         console.log(adminTreasury);
 
@@ -71,7 +73,7 @@ class PaymentController {
           res.status(404).send("User not found");
           return;
         }
-        
+
         const updateTreasury = {};
         if (balance) updateTreasury.treasury = adminTreasury + balance;
 
@@ -88,6 +90,34 @@ class PaymentController {
     }
 
     res.status(200).send("Update Premium successfully!");
+  }
+
+  async downgradePremium(req, res) {
+    console.log("toidayroiiiiiiiiiiiiiiii");
+    const userID = req.query.userID;
+    try {
+      // Tìm tài liệu có trường id phù hợp
+      const userRef = db.collection("users").where("userID", "==", userID);
+      const myUser = await userRef.get();
+
+      const updatedData = {};
+      updatedData.expiredDatePremium = "None";
+      updatedData.role = "Normal";
+
+      if (myUser.empty) {
+        res.status(404).send("User not found");
+        return;
+      }
+
+      // Cập nhật chỉ các trường đã được cung cấp trong updatedData
+      const doc = myUser.docs[0];
+      await doc.ref.update(updatedData);
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      res.status(500).send("Internal Server Error");
+    }
+
+    res.status(200).send("Update Normal successfully!");
   }
 }
 
