@@ -18,6 +18,8 @@ router.get(
   getListenHistoryByUserID,
   listenHistoryController.getListenHistoryByUserID
 );
+
+router.post("/createMultipleHistory", listenHistoryController.createMultipleHistory);
 router.post("/", checkHistoryExist);
 router.get("/", listenHistoryController.index);
 

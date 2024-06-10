@@ -3,7 +3,8 @@ const ListenHistory = require("../models/ListenHistory");
 const axios = require("axios");
 
 //const getSongByGenre_API_URL = process.env.API_URL + 'songs/nameGenre';
-const getSongBySongID_API_URL = "http://localhost:8383/" + "songs/songID";
+const getSongBySongID_API_URL = process.env.API_URL + "songs/songID";
+const createHisory_API_URL = process.env.API_URL + "listenHistory";
 
 class ListenHistoryController {
   //[GET]
@@ -97,6 +98,24 @@ class ListenHistoryController {
       console.error("Error fetching user:", error);
       res.status(500).json({ error: "Internal server error" });
     }
+  }
+
+  async createMultipleHistory(req, res) {
+    const {listHistory} = req.body;
+
+    const historyPromises = listHistory.map(async (item) => { 
+      try {
+        console.log(item);
+        await axios.post(createHisory_API_URL, item);
+      }catch (error) {
+        console.error("Error fetching user:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    })
+
+    await Promise.all(historyPromises);
+
+    res.status(200).send("Create History User Successfully!")
   }
 }
 
