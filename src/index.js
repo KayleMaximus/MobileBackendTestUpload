@@ -37,10 +37,10 @@ route(app);
 io.on('connection', (socket) => {
   console.log("User connected");
 
-  socket.on('joinRoom', (room) => {
-      socket.join(room);
-      io.emit('user-chat', room);
-      console.log(`User joined room ${room}`);
+  socket.on('create-room', (roomID) => {
+      socket.join(roomID);
+      io.emit('on-join-room', roomID);
+      console.log(`User joined room ${roomID}`);
   });
 
   // socket.on('sendMessage', (room, message) => {
@@ -51,8 +51,8 @@ io.on('connection', (socket) => {
   //     io.emit('user-chat', data)
   // })
 
-  socket.on('on-chat', data => {
-    io.to(data.room).emit('user-chat', data.message);
+  socket.on('on-add-song', data => {
+    io.to(data.room).emit('on-song-added', data.song);
 });
 
   socket.on('disconnect', () => {
