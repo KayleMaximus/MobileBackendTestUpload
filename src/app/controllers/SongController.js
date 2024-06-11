@@ -147,6 +147,28 @@ class SongController {
     }
   }
 
+  async delete(req, res) {
+    try {
+      const songID = req.params.songID;
+
+      const songRef = db.collection("songs").where("songID", "==", songID);
+      const mySong = await songRef.get();
+
+      if (mySong.empty) {
+        res.status(404).send("User not found");
+        return;
+      }
+
+      const doc = mySong.docs[0];
+      await doc.ref.delete();
+
+      res.status(200).send("Song deleted successfully");
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+
   //[GET] /nameArtist
   async getSongByArtistName(req, res, next) {
     const nameArtist = req.query.nameArtist;

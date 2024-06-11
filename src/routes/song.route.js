@@ -42,6 +42,7 @@ router.get("/nameGenre", songController.getSongByGenreName);
 router.get("/songID", songController.getSongBySongID);
 router.get("/songName", songController.getSongBySongName);
 router.post("/", upload.single("songFile"), songController.create);
+router.delete('/:songID', songController.delete);
 router.get("/", songController.index);
 
 module.exports = router;
