@@ -130,6 +130,30 @@ class ArtistController {
       .catch(next);
     res.send(list);
   }
+
+  async getArtistByAritstID(req, res, next) {
+    const artistID = req.query.artistID;
+    let artist;
+    await db
+      .collection("artists")
+      .where("artistID", "==", artistID)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const artistData = doc.data();
+          artist = new Artist(
+            artistData.artistID,
+            artistData.name,
+            artistData.description,
+            artistData.imageURL,
+            artistData.listSong,
+            artistData.listAlbum,
+          );
+        });
+      })
+      .catch(next);
+    res.send(artist);
+  }
 }
 
 module.exports = new ArtistController();
