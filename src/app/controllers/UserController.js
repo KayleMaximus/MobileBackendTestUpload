@@ -3,6 +3,7 @@ const { db, storage } = require("../../config/db/firebase");
 const { v4: uuidv4 } = require("uuid");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const convertTimestampToDate = require('../utils/converTime');
 
 class UserController {
   //[GET] /user
@@ -153,12 +154,14 @@ class UserController {
       const userRef = db.collection("users").where("userID", "==", userID);
       const myUser = await userRef.get();
 
-      console.log(myUser);
-
       let userData = null;
       myUser.forEach((doc) => {
         userData = doc.data();
       }); // Lấy dữ liệu người dùng từ Firestore
+
+      const newDate = convertTimestampToDate(userData.expiredDatePremium._seconds, userData.expiredDatePremium._nanoseconds);
+
+      userDate.expiredDatePremium = newDate;
 
       res.status(200).json(userData);
     } catch (error) {
@@ -166,6 +169,8 @@ class UserController {
       res.status(500).json({ error: "Internal server error" });
     }
   }
+
+  
 }
 
 module.exports = new UserController();
