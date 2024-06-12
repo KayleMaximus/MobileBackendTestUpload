@@ -161,7 +161,7 @@ class UserController {
 
       const newDate = convertTimestampToDate(userData.expiredDatePremium._seconds, userData.expiredDatePremium._nanoseconds);
 
-      userDate.expiredDatePremium = newDate;
+      userData.expiredDatePremium = newDate;
 
       res.status(200).json(userData);
     } catch (error) {
