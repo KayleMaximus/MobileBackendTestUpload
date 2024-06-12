@@ -8,7 +8,9 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.get('/nameSong', artistController.getArtistBySongName);
 router.get('/nameAlbum', artistController.getArtistByAlbumName);
 router.get("/artistID", artistController.getArtistByAritstID);
-router.get('/', artistController.index);
 router.post('/', upload.single('imageURL'), artistController.create);
+router.patch('/:artistID',  artistController.update);
+router.delete('/:artistID',  artistController.delete);
+router.get('/', artistController.index);
 
 module.exports = router;

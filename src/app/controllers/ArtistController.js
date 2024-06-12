@@ -75,6 +75,60 @@ class ArtistController {
     }
   }
 
+  async update(req, res) {
+    const artistID = req.params.artistID;
+    const { name, description } = req.body;
+
+    // Tạo một object JSON chứa các trường cần cập nhật
+    const updatedData = {};
+
+    if (name) updatedData.name = name;
+    if (description) updatedData.description = description;
+
+
+    try {
+      // Tìm tài liệu có trường id phù hợp
+      const artistRef = db.collection("artists").where("artistID", "==", artistID);
+      const myArtist = await artistRef.get();
+
+      if (myArtist.empty) {
+        res.status(404).send("Artist not found");
+        return;
+      }
+
+      // Cập nhật chỉ các trường đã được cung cấp trong updatedData
+      const doc = myArtist.docs[0];
+      await doc.ref.update(updatedData);
+
+      res.status(200).send("Artist updated successfully");
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const artistID = req.params.artistID;
+
+      const artistRef = db.collection("artists").where("artistID", "==", artistID);
+      const myArtist = await artistRef.get();
+
+      if (myArtist.empty) {
+        res.status(404).send("Artist not found");
+        return;
+      }
+
+      const doc = myArtist.docs[0];
+      await doc.ref.delete();
+
+      res.status(200).send("Artist deleted successfully");
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+
   //[GET] /nameSong
   async getArtistBySongName(req, res, next) {
     const nameSong = req.query.nameSong;
