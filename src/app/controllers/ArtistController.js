@@ -3,6 +3,10 @@ const Artist = require("../models/Artist");
 const { v4: uuidv4 } = require("uuid");
 const generateRandomID = require("../utils/randomID");
 const { getListSong, getListAlbum } = require("../utils/artist");
+const axios = require("axios");
+
+
+const getSongBySongID_API_URL = process.env.API_URL + "songs/songName";
 
 class ArtistController {
   async index(req, res, next) {
@@ -85,10 +89,11 @@ class ArtistController {
     if (name) updatedData.name = name;
     if (description) updatedData.description = description;
 
-
     try {
       // Tìm tài liệu có trường id phù hợp
-      const artistRef = db.collection("artists").where("artistID", "==", artistID);
+      const artistRef = db
+        .collection("artists")
+        .where("artistID", "==", artistID);
       const myArtist = await artistRef.get();
 
       if (myArtist.empty) {
@@ -111,7 +116,9 @@ class ArtistController {
     try {
       const artistID = req.params.artistID;
 
-      const artistRef = db.collection("artists").where("artistID", "==", artistID);
+      const artistRef = db
+        .collection("artists")
+        .where("artistID", "==", artistID);
       const myArtist = await artistRef.get();
 
       if (myArtist.empty) {
@@ -201,12 +208,59 @@ class ArtistController {
             artistData.description,
             artistData.imageURL,
             artistData.listSong,
-            artistData.listAlbum,
+            artistData.listAlbum
           );
         });
       })
       .catch(next);
     res.send(artist);
+  }
+
+  async getListSongByAritstID(req, res, next) {
+    const artistID = req.query.artistID;
+    let artist;
+    await db
+      .collection("artists")
+      .where("artistID", "==", artistID)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const artistData = doc.data();
+          artist = new Artist(
+            artistData.artistID,
+            artistData.name,
+            artistData.description,
+            artistData.imageURL,
+            artistData.listSong,
+            artistData.listAlbum
+          );
+        });
+      });
+
+    const listSong = [];
+
+    if (artist.listSong != null && artist.listSong.length > 0) {
+      try {
+        const songPromises = artist.listSong.map(async (item) => {
+          try {
+            const song = await axios.get(
+              `${getSongBySongID_API_URL}?songName=${item}`
+            );
+            const songData = song.data;
+
+            listSong.push(songData);
+          } catch (error) {
+            console.error("Error:", item, error);
+          }
+        });
+        await Promise.all(songPromises);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+      }
+    }
+
+    res.status(200).send(listSong);
   }
 }
 
