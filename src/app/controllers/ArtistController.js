@@ -239,7 +239,7 @@ class ArtistController {
 
     const listSong = [];
 
-    if (artist.listSong != null && artist.listSong.length > 0) {
+    if (artist.listSong.length > 0) {
       try {
         const songPromises = artist.listSong.map(async (item) => {
           try {
