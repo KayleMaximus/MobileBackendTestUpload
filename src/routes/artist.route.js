@@ -9,6 +9,7 @@ router.get('/nameSong', artistController.getArtistBySongName);
 router.get('/nameAlbum', artistController.getArtistByAlbumName);
 router.get("/artistID", artistController.getArtistByAritstID);
 router.get("/listSong", artistController.getListSongByAritstID);
+router.get("/listAlbum", artistController.getListAlbumByAritstID);
 router.post('/', upload.single('imageURL'), artistController.create);
 router.patch('/:artistID',  artistController.update);
 router.delete('/:artistID',  artistController.delete);

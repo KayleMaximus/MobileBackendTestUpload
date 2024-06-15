@@ -6,7 +6,8 @@ const { getListSong, getListAlbum } = require("../utils/artist");
 const axios = require("axios");
 
 
-const getSongBySongID_API_URL = process.env.API_URL + "songs/songName";
+const getSongBySongName_API_URL = process.env.API_URL + "songs/songName";
+const getAlbumByAlbumName_API_URL = process.env.API_URL + "albums/nameAlbum";
 
 class ArtistController {
   async index(req, res, next) {
@@ -244,7 +245,7 @@ class ArtistController {
         const songPromises = artist.listSong.map(async (item) => {
           try {
             const song = await axios.get(
-              `${getSongBySongID_API_URL}?songName=${item}`
+              `${getSongBySongName_API_URL}?songName=${item}`
             );
             const songData = song.data;
 
@@ -261,6 +262,53 @@ class ArtistController {
     }
 
     res.status(200).send(listSong);
+  }
+
+  async getListAlbumByAritstID(req, res, next) {
+    const artistID = req.query.artistID;
+    let artist;
+    await db
+      .collection("artists")
+      .where("artistID", "==", artistID)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const artistData = doc.data();
+          artist = new Artist(
+            artistData.artistID,
+            artistData.name,
+            artistData.description,
+            artistData.imageURL,
+            artistData.listSong,
+            artistData.listAlbum
+          );
+        });
+      });
+
+    const listAlbum = [];
+
+    if (artist.listAlbum.length > 0) {
+      try {
+        const albumPromises = artist.listAlbum.map(async (item) => {
+          try {
+            const album = await axios.get(
+              `${getAlbumByAlbumName_API_URL}?albumName=${item}`
+            );
+            const albumData = album.data;
+
+            listAlbum.push(albumData);
+          } catch (error) {
+            console.error("Error:", item, error);
+          }
+        });
+        await Promise.all(albumPromises);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+      }
+    }
+
+    res.status(200).send(listAlbum);
   }
 }
 
