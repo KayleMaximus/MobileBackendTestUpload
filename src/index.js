@@ -20,8 +20,9 @@ const route = require('./routes')
 
 
 app.use(cors({
-  origin: 'http://localhost:3000'
-}));  
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({
   extended: true
