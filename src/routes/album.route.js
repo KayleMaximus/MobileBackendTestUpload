@@ -11,6 +11,8 @@ router.get('/nameArtist', albumController.getAlbumtByArtistName);
 router.get('/albumID', albumController.getAlbumByAlbumID);
 router.get('/nameAlbum', albumController.getAlbumByAlbumName);
 router.get('/', auth, albumController.index);
+router.patch('/:albumID',  albumController.update);
+router.delete('/:albumID',  albumController.delete);
 router.post('/', upload.single('imageURL'), albumController.create);
 
 module.exports = router;

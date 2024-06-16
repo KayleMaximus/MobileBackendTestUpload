@@ -105,6 +105,63 @@ class AlbumController {
     }
   }
 
+  async update(req, res) {
+    const albumID = req.params.albumID;
+    const { name, artist } = req.body;
+
+    // Tạo một object JSON chứa các trường cần cập nhật
+    const updatedData = {};
+
+    if (name) updatedData.name = name;
+    if (artist) updatedData.artist = artist;
+
+    try {
+      // Tìm tài liệu có trường id phù hợp
+      const albumRef = db
+        .collection("albums")
+        .where("albumID", "==", albumID);
+      const myAlbum = await albumRef.get();
+
+      if (myAlbum.empty) {
+        res.status(404).send("Album not found");
+        return;
+      }
+
+      // Cập nhật chỉ các trường đã được cung cấp trong updatedData
+      const doc = myAlbum.docs[0];
+      await doc.ref.update(updatedData);
+
+      res.status(200).send("Album updated successfully");
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const albumID = req.params.albumID;
+
+      const albumRef = db
+        .collection("albums")
+        .where("albumID", "==", albumID);
+      const myAlbum = await albumRef.get();
+
+      if (myAlbum.empty) {
+        res.status(404).send("Album not found");
+        return;
+      }
+
+      const doc = myAlbum.docs[0];
+      await doc.ref.delete();
+
+      res.status(200).send("Album deleted successfully");
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+
   //[GET] /nameSong
   async getAlbumtBySongName(req, res, next) {
     const nameSong = req.query.nameSong;
