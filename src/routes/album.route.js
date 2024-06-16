@@ -10,6 +10,7 @@ router.get('/nameSong', albumController.getAlbumtBySongName);
 router.get('/nameArtist', albumController.getAlbumtByArtistName);
 router.get('/albumID', albumController.getAlbumByAlbumID);
 router.get('/nameAlbum', albumController.getAlbumByAlbumName);
+router.get("/listSong", albumController.getListSongByAlbumID);
 router.get('/', albumController.index);
 router.patch('/:albumID',  albumController.update);
 router.delete('/:albumID',  albumController.delete);

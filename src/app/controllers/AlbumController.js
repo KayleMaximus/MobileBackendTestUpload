@@ -5,8 +5,8 @@ const { v4: uuidv4 } = require("uuid");
 const generateRandomID = require("../utils/randomID");
 const axios = require("axios");
 
-//const getSongBySongName_API_URL = process.env.API_URL + "songs/songName";
-const getSongBySongName_API_URL = "http://localhost:8383/" + "songs/songName";
+const getSongBySongName_API_URL = process.env.API_URL + "songs/songName";
+//const getSongBySongName_API_URL = "http://localhost:8383/" + "songs/songName";
 
 class AlbumController {
   async index(req, res, next) {
@@ -288,6 +288,52 @@ class AlbumController {
       })
       .catch(next);
     res.send(album);
+  }
+
+  async getListSongByAlbumID(req, res, next) {
+    const albumID = req.query.albumID;
+    let album;
+    await db
+      .collection("albums")
+      .where("albumID", "==", albumID)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const albumData = doc.data();
+          album = new Album(
+            albumData.albumID,
+            albumData.name,
+            albumData.artist,
+            albumData.imageURL,
+            albumData.listSong,
+          );
+        });
+      });
+
+    const listSong = [];
+
+    if (album.listSong.length > 0) {
+      try {
+        const songPromises = album.listSong.map(async (item) => {
+          try {
+            const song = await axios.get(
+              `${getSongBySongName_API_URL}?songName=${item}`
+            );
+            const songData = song.data;
+
+            listSong.push(songData);
+          } catch (error) {
+            console.error("Error:", item, error);
+          }
+        });
+        await Promise.all(songPromises);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+      }
+    }
+
+    res.status(200).send(listSong);
   }
 }
 
