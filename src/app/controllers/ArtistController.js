@@ -5,7 +5,6 @@ const generateRandomID = require("../utils/randomID");
 const { getListSong, getListAlbum } = require("../utils/artist");
 const axios = require("axios");
 
-
 const getSongBySongName_API_URL = process.env.API_URL + "songs/songName";
 const getAlbumByAlbumName_API_URL = process.env.API_URL + "albums/nameAlbum";
 
