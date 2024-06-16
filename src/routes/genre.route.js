@@ -7,5 +7,7 @@ const genreController = require('../app/controllers/GenreController');
 router.get('/genreName', genreController.getGenreBySongID);
 router.get('/', genreController.index);
 router.post('/', genreController.create);
+router.delete('/:genreID', genreController.delete);
+router.patch('/:genreID', genreController.update);
 
 module.exports = router;
