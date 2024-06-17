@@ -64,6 +64,58 @@ class BannerController {
       res.status(500).send("Internal Server Error");
     }
   }
+
+  async update(req, res) {
+    const bannerID = req.params.bannerID;
+    const { link } = req.body;
+
+    // Tạo một object JSON chứa các trường cần cập nhật
+    const updatedData = {};
+
+    if (link) updatedData.link = link;
+
+    try {
+      // Tìm tài liệu có trường id phù hợp
+      const bannerRef = db.collection("banners").where("bannerID", "==", bannerID);
+      const myBanner = await bannerRef.get();
+
+      if (myBanner.empty) {
+        res.status(404).send("Banner not found");
+        return;
+      }
+
+      // Cập nhật chỉ các trường đã được cung cấp trong updatedData
+      const doc = myBanner.docs[0];
+      await doc.ref.update(updatedData);
+
+      res.status(200).send("Banner updated successfully");
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const bannerID = req.params.bannerID;
+
+      const bannerRef = db.collection("banners").where("bannerID", "==", bannerID);
+      const myBanner = await bannerRef.get();
+
+      if (myBanner.empty) {
+        res.status(404).send("Banner not found");
+        return;
+      }
+
+      const doc = myBanner.docs[0];
+      await doc.ref.delete();
+
+      res.status(200).send("Banner deleted successfully");
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      res.status(500).send("Internal Server Error");
+    }
+  }
 }
 
 module.exports = new BannerController();
