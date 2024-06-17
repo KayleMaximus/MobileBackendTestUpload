@@ -7,6 +7,7 @@ const auth = require('../app/middlewares/auth')
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.get('/', bannerController.index);
+router.get('/bannerID', bannerController.getBannerByBannerID);
 router.post('/', upload.single('imageURL'), bannerController.create);
 router.delete('/:bannerID', bannerController.delete);
 router.patch('/:bannerID', bannerController.update);

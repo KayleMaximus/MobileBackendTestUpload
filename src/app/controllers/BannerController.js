@@ -116,6 +116,27 @@ class BannerController {
       res.status(500).send("Internal Server Error");
     }
   }
+
+  async getBannerByBannerID(req, res, next) {
+    const bannerID = req.query.bannerID;
+    let banner;
+    await db
+      .collection("banners")
+      .where("bannerID", "==", bannerID)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const bannerData = doc.data();
+          banner = new Banner(
+            bannerData.bannerID,
+            bannerData.link,
+            bannerData.imageURL
+          );
+        });
+      })
+      .catch(next);
+    res.send(banner);
+  }
 }
 
 module.exports = new BannerController();
