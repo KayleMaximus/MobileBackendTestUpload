@@ -1,8 +1,10 @@
 class Banner {
-    constructor(bannerID, imageURL, link) {
+    constructor(bannerID, title, body, link, imageURL) {
       this.bannerID = bannerID;
-      this.imageURL = imageURL;
+      this.title = title;
+      this.body = body;
       this.link = link;
+      this.imageURL = imageURL;
     }
 }
 

@@ -16,8 +16,10 @@ class BannerController {
           const bannerData = doc.data();
           const banner = new Banner(
             bannerData.bannerID,
-            bannerData.imageURL,
-            bannerData.link
+            bannerData.title,
+            bannerData.body,
+            bannerData.link,
+            bannerData.imageURL
           );
           list.push(banner);
         });
@@ -27,7 +29,7 @@ class BannerController {
   }
   async create(req, res) {
     const bannerID = generateRandomID(23);
-    const { link } = req.body;
+    const { title, body, link } = req.body;
     const file = req.file;
 
     try {
@@ -48,13 +50,15 @@ class BannerController {
           expires: "01-01-3000",
         });
 
-      const newBanner = new Banner(bannerID, fileURL.toString(), link);
+      const newBanner = new Banner(bannerID, title, body, link, fileURL.toString());
 
       console.log(newBanner);
       await db.collection("banners").add({
         bannerID: newBanner.bannerID,
-        imageURL: newBanner.imageURL,
+        title: newBanner.title,
+        body: newBanner.body,
         link: newBanner.link,
+        imageURL: newBanner.imageURL,
       });
 
       sendNotification("marketing", newBanner);
@@ -129,8 +133,10 @@ class BannerController {
           const bannerData = doc.data();
           banner = new Banner(
             bannerData.bannerID,
-            bannerData.imageURL,
-            bannerData.link
+            bannerData.title,
+            bannerData.body,
+            bannerData.link,
+            bannerData.imageURL
           );
         });
       })

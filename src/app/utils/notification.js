@@ -33,8 +33,8 @@ const sendNotification = (type, object) => {
           topic: topic
       };
     } else if(type === "marketing") {
-      notification.title = `THK Music Corner vừa cập nhật ........`;
-      notification.body = `Thông tin chi tiết vui lòng bấm vào thông báo để xem rõ!`;
+      notification.title = object.title;
+      notification.body = object.body;
       notification.imageURL = object.imageURL;
       
       message = {
