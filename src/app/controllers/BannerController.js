@@ -129,8 +129,8 @@ class BannerController {
           const bannerData = doc.data();
           banner = new Banner(
             bannerData.bannerID,
-            bannerData.link,
-            bannerData.imageURL
+            bannerData.imageURL,
+            bannerData.link
           );
         });
       })
