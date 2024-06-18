@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
       socket.join(data.roomID);
       io.to(data.roomID).emit('on-create-room', data.roomID); 
       io.to(data.roomID).emit('on-join-room', data.userName);
-      console.log(`User joined room ${roomID}`);
+      console.log(`User joined room ${data.roomID}`);
   });
 
   socket.on('join-room', data=>{
