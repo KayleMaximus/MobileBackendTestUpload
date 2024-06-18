@@ -15,8 +15,6 @@ async function create(req, res) {
       count
     );
 
-    console.log(newListenHistory);
-
     await db.collection("listenHistory").add({
       userID: newListenHistory.userID,
       songID: newListenHistory.songID,

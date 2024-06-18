@@ -101,7 +101,7 @@ class ListenHistoryController {
   }
 
   async createMultipleHistory(req, res) {
-    const {listHistory} = req.body;
+    const listHistory = req.body;
 
     const historyPromises = listHistory.map(async (item) => { 
       try {
