@@ -40,9 +40,9 @@ route(app);
 io.on('connection', (socket) => {
   console.log("User connected");
 
-  socket.on('create-room', (data) => {
+  socket.on('create-room', data => {
       socket.join(data.roomID);
-      io.to(data.roomID).emit('on-create-room', roomID); 
+      io.to(data.roomID).emit('on-create-room', data.roomID); 
       io.to(data.roomID).emit('on-join-room', data.userName);
       console.log(`User joined room ${roomID}`);
   });
