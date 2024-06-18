@@ -40,16 +40,16 @@ route(app);
 io.on('connection', (socket) => {
   console.log("User connected");
 
-  socket.on('create-room', (roomID) => {
-      socket.join(roomID);
-      io.to(roomID).emit('on-create-room', roomID);
-      io.to(roomID).emit('on-join-room', roomID);
+  socket.on('create-room', (data) => {
+      socket.join(data.roomID);
+      io.to(data.roomID).emit('on-create-room', roomID); 
+      io.to(data.roomID).emit('on-join-room', data.userName);
       console.log(`User joined room ${roomID}`);
   });
 
   socket.on('join-room', data=>{
     socket.join(data.roomId);
-    io.to(data.roomId).emit('on-join-room', data.userId);
+    io.to(data.roomId).emit('on-join-room', data.userName);
   })
 
   // socket.on('sendMessage', (room, message) => {
