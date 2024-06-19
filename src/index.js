@@ -48,8 +48,21 @@ io.on('connection', (socket) => {
   });
 
   socket.on('join-room', data=>{
-    socket.join(data.roomId);
-    io.to(data.roomId).emit('on-join-room', data.userName);
+    socket.join(data.roomID);
+    io.to(data.roomID).emit('on-get-room-info', data.userName);
+    console.log(`User ${data.userName}  asking room ${data.roomID} and waiting for response`);
+  })
+
+  socket.on('respone-room-info', data=>{
+    socket.join(data.roomID);
+    io.to(data.roomID).emit('on-respone-room-info', data.roomInfo)
+    console.log(`response from ${data.roomID} : ${data.roomInfo}`);
+  })
+
+  socket.on('user-join-room', data=>{
+    socket.join(data.roomID);
+    io.to(data.roomID).emit('on-user-join-room', data.userName);
+    console.log(`User ${data.userName} joined room ${data.roomID}`);
   })
 
   // socket.on('sendMessage', (room, message) => {
