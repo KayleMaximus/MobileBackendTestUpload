@@ -75,7 +75,7 @@ class PaymentController {
         }
 
         const updateTreasury = {};
-        if (balance) updateTreasury.treasury = adminTreasury + balance;
+        if (balance) updateTreasury.treasury = Number(adminTreasury) + Number(balance);
 
         // Cập nhật chỉ các trường đã được cung cấp trong updatedData
         const doc = myAdmin.docs[0];
@@ -93,7 +93,6 @@ class PaymentController {
   }
 
   async downgradePremium(req, res) {
-    console.log("toidayroiiiiiiiiiiiiiiii");
     const userID = req.query.userID;
     try {
       // Tìm tài liệu có trường id phù hợp
