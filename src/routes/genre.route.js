@@ -8,7 +8,7 @@ router.get('/genreName', genreController.getGenreBySongID);
 router.get("/genreID", genreController.getGenreByGenreID);
 router.get('/', genreController.index);
 router.post('/', auth, genreController.create);
-router.delete('/:genreID', genreController.delete);
-router.patch('/:genreID', genreController.update);
+router.delete('/:genreID', auth, genreController.delete);
+router.patch('/:genreID', auth, genreController.update);
 
 module.exports = router;
