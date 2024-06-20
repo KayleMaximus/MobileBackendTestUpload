@@ -75,6 +75,7 @@ io.on("connection", (socket) => {
   // handle message
   socket.on("user-message", (data) => {
     io.to(data.roomID).emit("on-user-message", data.message);
+    console.log(`In ra đối tượng cho pussyK xem: ${data.message}`)
   });
 
   // handle play song
