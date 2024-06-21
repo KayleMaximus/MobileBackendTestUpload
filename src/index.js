@@ -41,7 +41,7 @@ const port = process.env.PORT || 8383;
 route(app);
 
 io.on("connection", (socket) => {
-  console.log("User connected");
+  console.log(`User with socketID: ${socket.id} connected`);
 
   //hadnle create room
   socket.on("create-room", (data) => {
@@ -62,7 +62,8 @@ io.on("connection", (socket) => {
 
   socket.on("respone-room-info", (data) => {
     socket.join(data.roomID);
-    io.to(data.roomID).emit("on-respone-room-info", data.roomInfo);
+    socket.to(data.roomID).emit("on-respone-room-info", data.roomInfo); // notify all clients execpt sender (host)
+    //io.to(data.roomID).emit("on-respone-room-info", data.roomInfo);
     console.log(`response from ${data.roomID} : ${data.roomInfo}`);
   });
 
@@ -84,6 +85,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    console.log(`User ${socket.id} has disconnected`);
+    io.emit("on-user-disconnect", socket.id); // Notify other clients about the disconnection
+    //socket.broadcast.emit("on-user-disconnect", socket.id);
     console.log("User disconnected");
   });
 });
