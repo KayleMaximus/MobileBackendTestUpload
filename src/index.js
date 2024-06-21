@@ -63,8 +63,8 @@ io.on("connection", (socket) => {
 
   socket.on("respone-room-info", (data) => {
     socket.join(data.roomID);
-    socket.to(data.roomID).emit("on-respone-room-info", data.roomInfo); // notify all clients execpt sender (host)
-    //io.to(data.roomID).emit("on-respone-room-info", data.roomInfo);
+    //socket.to(data.roomID).emit("on-respone-room-info", data.roomInfo); // notify all clients execpt sender (host)
+    io.to(data.roomID).emit("on-respone-room-info", data.roomInfo);
     console.log(`response from ${data.roomID} : ${data.roomInfo}`);
   });
 
