@@ -54,7 +54,8 @@ io.on("connection", (socket) => {
   //handle join room
   socket.on("join-room", (data) => {
     socket.join(data.roomID);
-    io.to(data.roomID).emit("on-get-room-info", data.userName);
+    socket.to(data.roomID).emit("on-get-room-info", data.userName);
+    //io.to(data.roomID).emit("on-get-room-info", data.userName);
     console.log(
       `User ${data.userName}  asking room ${data.roomID} and waiting for response`
     );
@@ -88,7 +89,6 @@ io.on("connection", (socket) => {
     console.log(`User ${socket.id} has disconnected`);
     io.emit("on-user-disconnect", socket.id); // Notify other clients about the disconnection
     //socket.broadcast.emit("on-user-disconnect", socket.id);
-    console.log("User disconnected");
   });
 });
 
