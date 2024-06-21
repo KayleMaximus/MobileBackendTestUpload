@@ -54,7 +54,7 @@ io.on("connection", (socket) => {
   //handle join room
   socket.on("join-room", (data) => {
     socket.join(data.roomID);
-    socket.to(data.roomID).emit("on-get-room-info", data.userName);
+    socket.to(data.roomID).emit("on-get-room-info", data.userName, data.userID);
     //io.to(data.roomID).emit("on-get-room-info", data.userName);
     console.log(
       `User ${data.userName}  asking room ${data.roomID} and waiting for response`
