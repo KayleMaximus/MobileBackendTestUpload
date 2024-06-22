@@ -114,7 +114,7 @@ class UserController {
       await doc.ref.update(updatedData);
 
       if (updatedData.imageURL) {
-        res.status(200).send(updatedData.imageURL);
+        res.status(200).send({imageURL: updatedData.imageURL});
       } else {
         res.status(200).send("User updated successfully");
       }
