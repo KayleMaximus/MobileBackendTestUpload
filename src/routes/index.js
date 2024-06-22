@@ -11,6 +11,7 @@ const searchHistoryRouter = require('./searchHistory.route');
 const bannerRouter = require('./banner.route');
 const paymentRouter = require('./payment.route');
 const peerRouter = require('./peer.route');
+const playlistRouter = require('./playlist.route');
 
 function route(app) {
     app.use('/login', loginController);
@@ -25,6 +26,7 @@ function route(app) {
     app.use('/banners', bannerRouter);
     app.use('/payment', paymentRouter);
     app.use('/peerjs', peerRouter);
+    app.use('/playlists', playlistRouter);
     app.use('/', siteRouter);
 }
 
