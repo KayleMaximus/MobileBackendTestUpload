@@ -11,7 +11,7 @@ class GenreController {
             .then(snapshot => {
                 snapshot.forEach(doc => {
                     const genreData = doc.data();
-                    const genre = new Genre(genreData.genreID, genreData.name);
+                    const genre = new Genre(genreData.genreID, genreData.name, genreData.imageURL);
                     list.push(genre);
                 });
             })
@@ -21,14 +21,31 @@ class GenreController {
 
     async create(req, res) {
     const genreID = generateRandomID(23);
+    const { name } = req.body;
+    const file = req.file;
 
         try{
-            const { name } = req.body;
+          const fileName = uuidv4(); // Generate a unique filename using UUID
+      const destinationFileName = "images/" + fileName; // Use the generated filename
 
-            const newGenre = new Genre(genreID, name);
+      await storage.bucket().file(destinationFileName).save(file.buffer, {
+        contentType: file.mimetype,
+      });
+
+      const fileURL = await storage
+        .bucket()
+        .file(destinationFileName)
+        .getSignedUrl({
+          action: "read",
+          expires: "01-01-3000",
+        });
+
+
+            const newGenre = new Genre(genreID, name, fileURL.toString());
             await db.collection('genres').add({
                 genreID: newGenre.genreID,
                 name: newGenre.name,
+                imageURL: newGenre.imageURL
             })
             
             res.status(201).send("Genres created successfully"); 
@@ -121,6 +138,7 @@ class GenreController {
               genre = new Genre(
                 genreData.genreID,
                 genreData.name,
+                genreData.imageURL,
               );
             });
           })

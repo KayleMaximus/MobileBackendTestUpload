@@ -1,7 +1,8 @@
 class Genre {
-    constructor(genreID, name) {
+    constructor(genreID, name, imageURL) {
       this.genreID = genreID;
       this.name = name;
+      this.imageURL = imageURL;
     }
 }
 
