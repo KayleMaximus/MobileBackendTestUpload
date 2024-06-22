@@ -29,31 +29,45 @@ class PlaylistController {
   async create(req, res) {
     try {
       const { userID, username, playlistName, listSong } = req.body;
-      console.log(listSong);
 
-      let newlistSong = [];
+      try {
+        const playlistRef = db
+          .collection("playlists")
+          .where("userID", "==", userID)
+          .where("playlistName", "==", playlistName)
+          .limit(1);
+        const myPlaylist = await playlistRef.get();
 
-      if (listSong.length > 0) {
-        console.log(listSong[0].name);
-        newlistSong.push(listSong[0].name);
+        if (myPlaylist.empty) {
+          let newlistSong = [];
+
+          if (listSong.length > 0) {
+            newlistSong.push(listSong[0].name);
+          }
+
+          const newPlaylist = new Playlist(
+            userID,
+            username,
+            playlistName,
+            newlistSong
+          );
+
+          await db.collection("playlists").add({
+            userID: newPlaylist.userID,
+            username: newPlaylist.username,
+            playlistName: newPlaylist.playlistName,
+            listSong: newPlaylist.listSong,
+          });
+
+          res.status(201).send("Playlist created successfully");
+        } else {
+          res.send(
+            "This playlist have exist in your library! Please choose other name!"
+          );
+        }
+      } catch (error) {
+        console.log(error);
       }
-
-      const newPlaylist = new Playlist(
-        userID,
-        username,
-        playlistName,
-        newlistSong
-      );
-
-      console.log(newPlaylist);
-      await db.collection("playlists").add({
-        userID: newPlaylist.userID,
-        username: newPlaylist.username,
-        playlistName: newPlaylist.playlistName,
-        listSong: newPlaylist.listSong,
-      });
-
-      res.status(201).send("Playlist created successfully");
     } catch (error) {
       res.status(500).send("Internal Server Error");
     }
@@ -139,9 +153,8 @@ class PlaylistController {
         });
       });
 
-      console.log(playlist);
-    
-    
+    console.log(playlist);
+
     const listSong = [];
 
     if (playlist.listSong.length > 0) {
@@ -177,7 +190,8 @@ class PlaylistController {
     console.log(userID);
     const list = [];
     await db
-      .collection("playlists").where("userID", "==", userID)
+      .collection("playlists")
+      .where("userID", "==", userID)
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
@@ -196,7 +210,7 @@ class PlaylistController {
   }
 
   async addSongToPlaylist(req, res, next) {
-    const {userID, playlistName} = req.body;
+    const { userID, playlistName } = req.body;
     const songName = req.songName;
 
     let playlist;
@@ -218,61 +232,59 @@ class PlaylistController {
         });
       });
 
-      let listSong = playlist.listSong;
-      let isExist = false;
+    let listSong = playlist.listSong;
+    let isExist = false;
 
     if (listSong.length > 0) {
-        try {
-            for(let i = 0; i < listSong.length; i++)
-                {
-                if(listSong[i] !== songName) {
-                    isExist = false;
-                } else {
-                    isExist = true;
-                    break;
-                }
-            }
-
-            if(isExist == false) {
-                listSong.push(songName);
-            }
-
-        } catch (error) {
-            console.error(error);
-        res.status(500).send("Internal Server Error");
+      try {
+        for (let i = 0; i < listSong.length; i++) {
+          if (listSong[i] !== songName) {
+            isExist = false;
+          } else {
+            isExist = true;
+            break;
+          }
         }
+
+        if (isExist == false) {
+          listSong.push(songName);
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+      }
     }
     const updatedData = {};
 
     updatedData.listSong = listSong;
 
     try {
-        // Tìm tài liệu có trường id phù hợp
-        const playlistRef = db
-          .collection("playlists")
-          .where("userID", "==", userID)
-          .where("playlistName", "==", playlistName)
-          .limit(1);
-        const myPlaylist = await playlistRef.get();
-  
-        if (myPlaylist.empty) {
-          res.status(404).send("Playlist not found");
-          return;
-        }
-  
-        // Cập nhật chỉ các trường đã được cung cấp trong updatedData
-        const doc = myPlaylist.docs[0];
-        await doc.ref.update(updatedData);
-  
-        res.status(200).send("Playlist added song successfully");
-      } catch (error) {
-        console.error("Error updating user: ", error);
-        res.status(500).send("Internal Server Error");
+      // Tìm tài liệu có trường id phù hợp
+      const playlistRef = db
+        .collection("playlists")
+        .where("userID", "==", userID)
+        .where("playlistName", "==", playlistName)
+        .limit(1);
+      const myPlaylist = await playlistRef.get();
+
+      if (myPlaylist.empty) {
+        res.status(404).send("Playlist not found");
+        return;
       }
+
+      // Cập nhật chỉ các trường đã được cung cấp trong updatedData
+      const doc = myPlaylist.docs[0];
+      await doc.ref.update(updatedData);
+
+      res.status(200).send("Playlist added song successfully");
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      res.status(500).send("Internal Server Error");
+    }
   }
 
   async deleteSongFromPlaylist(req, res, next) {
-    const {userID, playlistName} = req.body;
+    const { userID, playlistName } = req.body;
     const songName = req.songName;
 
     let playlist;
@@ -294,45 +306,45 @@ class PlaylistController {
         });
       });
 
-      console.log(playlist);
+    console.log(playlist);
 
-      let listSong = playlist.listSong;
+    let listSong = playlist.listSong;
 
     if (listSong.length > 0) {
-        try {
-            listSong = listSong.filter(item => item !== songName)
-        } catch (error) {
-            console.error(error);
+      try {
+        listSong = listSong.filter((item) => item !== songName);
+      } catch (error) {
+        console.error(error);
         res.status(500).send("Internal Server Error");
-        }
+      }
     }
     const updatedData = {};
 
     updatedData.listSong = listSong;
 
     try {
-        // Tìm tài liệu có trường id phù hợp
-        const playlistRef = db
-          .collection("playlists")
-          .where("userID", "==", userID)
-          .where("playlistName", "==", playlistName)
-          .limit(1);
-        const myPlaylist = await playlistRef.get();
-  
-        if (myPlaylist.empty) {
-          res.status(404).send("Playlist not found");
-          return;
-        }
-  
-        // Cập nhật chỉ các trường đã được cung cấp trong updatedData
-        const doc = myPlaylist.docs[0];
-        await doc.ref.update(updatedData);
-  
-        res.status(200).send("Playlist deleted song successfully");
-      } catch (error) {
-        console.error("Error updating user: ", error);
-        res.status(500).send("Internal Server Error");
+      // Tìm tài liệu có trường id phù hợp
+      const playlistRef = db
+        .collection("playlists")
+        .where("userID", "==", userID)
+        .where("playlistName", "==", playlistName)
+        .limit(1);
+      const myPlaylist = await playlistRef.get();
+
+      if (myPlaylist.empty) {
+        res.status(404).send("Playlist not found");
+        return;
       }
+
+      // Cập nhật chỉ các trường đã được cung cấp trong updatedData
+      const doc = myPlaylist.docs[0];
+      await doc.ref.update(updatedData);
+
+      res.status(200).send("Playlist deleted song successfully");
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      res.status(500).send("Internal Server Error");
+    }
   }
 }
 
