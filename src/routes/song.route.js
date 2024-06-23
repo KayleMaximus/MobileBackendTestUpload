@@ -4,6 +4,7 @@ const multer = require("multer");
 
 const songController = require("../app/controllers/SongController");
 const cache = require('../app/middlewares/cache');
+const auth = require('../app/middlewares/auth');
 const {
   getListenHistoryByUserID,
   getListenHistoryByUserID_Forgotten,
@@ -42,9 +43,9 @@ router.get("/nameArtist", songController.getSongByArtistName);
 router.get("/nameGenre", songController.getSongByGenreName);
 router.get("/songID", songController.getSongBySongID);
 router.get("/songName", songController.getSongBySongName);
-router.post("/", upload.single("songFile"), songController.create);
-router.delete('/:songID', songController.delete);
-router.patch('/:songID', songController.update);
+router.post("/", auth, upload.single("songFile"), songController.create);
+router.patch('/:songID', auth, songController.update);
+router.delete('/:songID', auth, songController.delete);
 router.get("/", cache.cacheAllSongs, songController.index);
 
 module.exports = router;

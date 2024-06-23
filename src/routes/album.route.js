@@ -12,9 +12,9 @@ router.get('/nameArtist', albumController.getAlbumtByArtistName);
 router.get('/albumID', albumController.getAlbumByAlbumID);
 router.get('/nameAlbum', albumController.getAlbumByAlbumName);
 router.get("/listSong", albumController.getListSongByAlbumID);
-router.patch('/:albumID',  albumController.update);
-router.delete('/:albumID',  albumController.delete);
-router.post('/', upload.single('imageURL'), albumController.create);
+router.post('/', auth, upload.single('imageURL'), albumController.create);
+router.patch('/:albumID', auth, albumController.update);
+router.delete('/:albumID', auth, albumController.delete);
 router.get('/', cache.cacheAllAlbums, albumController.index);
 
 module.exports = router;

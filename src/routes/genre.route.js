@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../app/middlewares/auth')
 const multer = require("multer");
 
 const genreController = require('../app/controllers/GenreController');
 const cache = require('../app/middlewares/cache');
+const auth = require('../app/middlewares/auth');
 const upload = multer();
 
 router.get('/genreName', genreController.getGenreBySongID);
