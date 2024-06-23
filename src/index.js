@@ -8,6 +8,7 @@ const multer = require("multer");
 const { FieldValue } = require("firebase-admin/firestore");
 const cors = require("cors");
 require("dotenv").config();
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
   express.urlencoded({

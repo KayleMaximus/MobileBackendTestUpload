@@ -10,8 +10,10 @@ const Song = require("../models/Song");
 const sqlite = require("../../config/db/sqliteCloud");
 const axios = require("axios");
 const sendNotification = require("../utils/notification");
+const redisClient = require('../../config/redis')
 
 const getSongBySongID_API_URL = process.env.API_URL + "songs/songID";
+const cacheKey = 'all-songs';
 
 class SongController {
   //[GET] /user
@@ -36,9 +38,9 @@ class SongController {
           );
           list.push(song);
         });
-      })
-      .catch(next);
-    res.send(list);
+      });
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(list));
+      res.send(list);
   }
 
   //[POST]
@@ -124,19 +126,26 @@ class SongController {
         imageURL
       );
 
-      await db.collection("songs").add({
-        songID: newSong.songID,
-        name: newSong.name,
-        artist: newSong.artist,
-        genre: newSong.genre,
-        album: newSong.album,
-        views: newSong.views,
-        createdAt: newSong.createdAt,
-        songURL: newSong.songURL,
-        imageURL: newSong.imageURL,
-      });
+      try {
+        await db.collection("songs").add({
+          songID: newSong.songID,
+          name: newSong.name,
+          artist: newSong.artist,
+          genre: newSong.genre,
+          album: newSong.album,
+          views: newSong.views,
+          createdAt: newSong.createdAt,
+          songURL: newSong.songURL,
+          imageURL: newSong.imageURL,
+        });
 
-      console.log("toidayroi");
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error)
+      }
 
       sendNotification("media", newSong);
 
@@ -170,7 +179,16 @@ class SongController {
 
       // Cập nhật chỉ các trường đã được cung cấp trong updatedData
       const doc = mySong.docs[0];
-      await doc.ref.update(updatedData);
+
+      try {
+        await doc.ref.update(updatedData);
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error)
+      }
 
       res.status(200).send("Song updated successfully");
     } catch (error) {
@@ -192,7 +210,16 @@ class SongController {
       }
 
       const doc = mySong.docs[0];
-      await doc.ref.delete();
+      
+      try {
+        await doc.ref.delete();
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error)
+      }
 
       res.status(200).send("Song deleted successfully");
     } catch (error) {

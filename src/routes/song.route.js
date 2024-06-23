@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 
 const songController = require("../app/controllers/SongController");
+const cache = require('../app/middlewares/cache');
 const {
   getListenHistoryByUserID,
   getListenHistoryByUserID_Forgotten,
@@ -44,6 +45,6 @@ router.get("/songName", songController.getSongBySongName);
 router.post("/", upload.single("songFile"), songController.create);
 router.delete('/:songID', songController.delete);
 router.patch('/:songID', songController.update);
-router.get("/", songController.index);
+router.get("/", cache.cacheAllSong, songController.index);
 
 module.exports = router;
