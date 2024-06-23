@@ -4,9 +4,11 @@ const Song = require("../models/Song");
 const { v4: uuidv4 } = require("uuid");
 const generateRandomID = require("../utils/randomID");
 const axios = require("axios");
+const redisClient = require('../../config/redis')
 
 const getSongBySongName_API_URL = process.env.API_URL + "songs/songName";
-//const getSongBySongName_API_URL = "http://localhost:8383/" + "songs/songName";
+const cacheKey = 'all-albums';
+
 
 class AlbumController {
   async index(req, res, next) {
@@ -57,15 +59,19 @@ class AlbumController {
         }
 
         itemAlbum.listSong = listSong;
-        
-        console.log(listSong);
-
         });
       await Promise.all(albumPromises);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ error: "Internal server error" });
     }
+
+    try {
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(list));
+    } catch (error) {
+      console.log(error)
+    }
+
     res.send(list);
   }
 
@@ -91,13 +97,22 @@ class AlbumController {
 
       const newAlbum = new Album(albumID, name, artist, fileURL.toString(), []);
 
-      await db.collection("albums").add({
-        albumID: newAlbum.albumID,
-        name: newAlbum.name,
-        artist: newAlbum.artist,
-        imageURL: newAlbum.imageURL,
-        listSong: newAlbum.listSong,
-      });
+        try {
+          await db.collection("albums").add({
+            albumID: newAlbum.albumID,
+            name: newAlbum.name,
+            artist: newAlbum.artist,
+            imageURL: newAlbum.imageURL,
+            listSong: newAlbum.listSong,
+          });
+
+          redisClient.del(cacheKey, (err, response) => {
+            if (err) throw err;
+            console.log(`Cache key ${cacheKey} deleted`);
+          });
+        } catch (error) {
+          console.log(error)
+        }
 
       res.status(201).send("Album created successfully");
     } catch (error) {
@@ -129,7 +144,16 @@ class AlbumController {
 
       // Cập nhật chỉ các trường đã được cung cấp trong updatedData
       const doc = myAlbum.docs[0];
-      await doc.ref.update(updatedData);
+      
+      try {
+        await doc.ref.update(updatedData);
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error)
+      }
 
       res.status(200).send("Album updated successfully");
     } catch (error) {
@@ -153,7 +177,16 @@ class AlbumController {
       }
 
       const doc = myAlbum.docs[0];
-      await doc.ref.delete();
+      
+      try {
+        await doc.ref.delete();
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error)
+      }
 
       res.status(200).send("Album deleted successfully");
     } catch (error) {

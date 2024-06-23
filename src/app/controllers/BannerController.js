@@ -2,8 +2,10 @@ const { db, storage } = require("../../config/db/firebase");
 const { v4: uuidv4 } = require("uuid");
 const Banner = require("../models/Banner");
 const generateRandomID = require("../utils/randomID");
-const sendNotification = require('../utils/notification');
+const sendNotification = require("../utils/notification");
+const redisClient = require("../../config/redis");
 
+const cacheKey = "all-banners";
 
 class BannerController {
   async index(req, res, next) {
@@ -23,8 +25,14 @@ class BannerController {
           );
           list.push(banner);
         });
-      })
-      .catch(next);
+      });
+
+    try {
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(list));
+    } catch (error) {
+      console.log(error);
+    }
+
     res.send(list);
   }
   async create(req, res) {
@@ -50,16 +58,31 @@ class BannerController {
           expires: "01-01-3000",
         });
 
-      const newBanner = new Banner(bannerID, title, body, link, fileURL.toString());
+      const newBanner = new Banner(
+        bannerID,
+        title,
+        body,
+        link,
+        fileURL.toString()
+      );
 
       console.log(newBanner);
-      await db.collection("banners").add({
-        bannerID: newBanner.bannerID,
-        title: newBanner.title,
-        body: newBanner.body,
-        link: newBanner.link,
-        imageURL: newBanner.imageURL,
-      });
+      try {
+        await db.collection("banners").add({
+          bannerID: newBanner.bannerID,
+          title: newBanner.title,
+          body: newBanner.body,
+          link: newBanner.link,
+          imageURL: newBanner.imageURL,
+        });
+
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error);
+      }
 
       sendNotification("marketing", newBanner);
 
@@ -80,7 +103,9 @@ class BannerController {
 
     try {
       // Tìm tài liệu có trường id phù hợp
-      const bannerRef = db.collection("banners").where("bannerID", "==", bannerID);
+      const bannerRef = db
+        .collection("banners")
+        .where("bannerID", "==", bannerID);
       const myBanner = await bannerRef.get();
 
       if (myBanner.empty) {
@@ -90,7 +115,16 @@ class BannerController {
 
       // Cập nhật chỉ các trường đã được cung cấp trong updatedData
       const doc = myBanner.docs[0];
-      await doc.ref.update(updatedData);
+
+      try {
+        await doc.ref.update(updatedData);
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error);
+      }
 
       res.status(200).send("Banner updated successfully");
     } catch (error) {
@@ -103,7 +137,9 @@ class BannerController {
     try {
       const bannerID = req.params.bannerID;
 
-      const bannerRef = db.collection("banners").where("bannerID", "==", bannerID);
+      const bannerRef = db
+        .collection("banners")
+        .where("bannerID", "==", bannerID);
       const myBanner = await bannerRef.get();
 
       if (myBanner.empty) {
@@ -112,7 +148,15 @@ class BannerController {
       }
 
       const doc = myBanner.docs[0];
-      await doc.ref.delete();
+      try {
+        await doc.ref.delete();
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error);
+      }
 
       res.status(200).send("Banner deleted successfully");
     } catch (error) {

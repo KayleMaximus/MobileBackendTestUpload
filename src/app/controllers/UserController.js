@@ -4,6 +4,9 @@ const { v4: uuidv4 } = require("uuid");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const convertTimestampToDate = require('../utils/converTime');
+const redisClient = require('../../config/redis')
+
+const cacheKey = 'all-users';
 
 class UserController {
   //[GET] /user
@@ -27,7 +30,13 @@ class UserController {
           list.push(user);
         });
       })
-      .catch(next);
+
+      try {
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(list));
+      } catch (error) {
+        console.log(error)
+      }
+
     res.send(list);
   }
 
@@ -49,21 +58,24 @@ class UserController {
 
       console.log(newUser);
 
-      await db.collection("users").add({
-        userID: newUser.userID,
-        username: newUser.username,
-        email: newUser.email,
-        role: newUser.role,
-        expiredDatePremium: newUser.expiredDatePremium,
-        signInMethod: newUser.signInMethod,
-        imageURL: newUser.imageURL,
-      });
+      try {
+        await db.collection("users").add({
+          userID: newUser.userID,
+          username: newUser.username,
+          email: newUser.email,
+          role: newUser.role,
+          expiredDatePremium: newUser.expiredDatePremium,
+          signInMethod: newUser.signInMethod,
+          imageURL: newUser.imageURL,
+        });
 
-      // const token = newUser.generateAuthToken()
-
-      // //res.send(token);
-
-      // res.header('x-auth-token', token).send("User created successfully");
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error)
+      }
 
       res.status(200).send("User created successfully");
 
@@ -111,7 +123,16 @@ class UserController {
 
       // Cập nhật chỉ các trường đã được cung cấp trong updatedData
       const doc = myUser.docs[0];
-      await doc.ref.update(updatedData);
+
+      try {
+        await doc.ref.update(updatedData);
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error)
+      }
 
       if (updatedData.imageURL) {
         res.status(200).send({imageURL: updatedData.imageURL});
@@ -137,7 +158,16 @@ class UserController {
       }
 
       const doc = myUser.docs[0];
-      await doc.ref.delete();
+      
+      try {
+        await doc.ref.delete();
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error)
+      }
 
       res.status(200).send("User deleted successfully");
     } catch (error) {
