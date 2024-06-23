@@ -4,9 +4,11 @@ const { v4: uuidv4 } = require("uuid");
 const generateRandomID = require("../utils/randomID");
 const { getListSong, getListAlbum } = require("../utils/artist");
 const axios = require("axios");
+const redisClient = require("../../config/redis");
 
 const getSongBySongName_API_URL = process.env.API_URL + "songs/songName";
 const getAlbumByAlbumName_API_URL = process.env.API_URL + "albums/nameAlbum";
+const cacheKey = "all-artists";
 
 class ArtistController {
   async index(req, res, next) {
@@ -30,8 +32,13 @@ class ArtistController {
       })
       .catch(next);
 
-    list = await getListSong(list);
-    list = await getListAlbum(list);
+    try {
+      list = await getListSong(list);
+      list = await getListAlbum(list);
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(list));
+    } catch (error) {
+      console.log(error);
+    }
 
     res.send(list);
   }
@@ -64,14 +71,27 @@ class ArtistController {
         [],
         []
       );
-      await db.collection("artists").add({
-        artistID: newArtist.artistID,
-        name: newArtist.name,
-        description: newArtist.description,
-        imageURL: newArtist.imageURL,
-        listSong: newArtist.listSong,
-        listAlbum: newArtist.listAlbum,
-      });
+
+      try {
+        await db.collection("artists").add({
+          artistID: newArtist.artistID,
+          name: newArtist.name,
+          description: newArtist.description,
+          imageURL: newArtist.imageURL,
+          listSong: newArtist.listSong,
+          listAlbum: newArtist.listAlbum,
+        });
+
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+
+
+      } catch (error) {
+        console.log(error);
+      }
+      
 
       res.status(201).send("Artist created successfully");
     } catch (error) {
@@ -103,7 +123,16 @@ class ArtistController {
 
       // Cập nhật chỉ các trường đã được cung cấp trong updatedData
       const doc = myArtist.docs[0];
-      await doc.ref.update(updatedData);
+
+      try {
+        await doc.ref.update(updatedData);
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error)
+      }
 
       res.status(200).send("Artist updated successfully");
     } catch (error) {
@@ -127,7 +156,16 @@ class ArtistController {
       }
 
       const doc = myArtist.docs[0];
-      await doc.ref.delete();
+
+      try {
+        await doc.ref.delete();
+        redisClient.del(cacheKey, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        });
+      } catch (error) {
+        console.log(error)
+      }
 
       res.status(200).send("Artist deleted successfully");
     } catch (error) {
