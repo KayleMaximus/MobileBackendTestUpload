@@ -11,7 +11,7 @@ router.get('/bannerID', bannerController.getBannerByBannerID);
 router.post('/', upload.single('imageURL'), bannerController.create);
 router.delete('/:bannerID', bannerController.delete);
 router.patch('/:bannerID', bannerController.update);
-router.get('/', cache.cacheAllAlbums, bannerController.index);
+router.get('/', cache.cacheAllBanners, bannerController.index);
 
 
 module.exports = router;
