@@ -92,12 +92,27 @@ io.on("connection", (socket) => {
   socket.on("add-song", (data) => {
     io.to(data.roomID).emit("on-song-added", data.song);
     console.log(`Song ${data.song} is added to room ${data.roomID}`);
-  })
+  });
 
   socket.on("add-song-play-next", (data) => {
     io.to(data.roomID).emit("on-add-song-play-next", data.song);
     console.log(`Song ${data.song} is added to top of playlist in room ${data.roomID}`);
-  })
+  });
+
+  socket.on("add-playlist", (data)=> {
+    io.to(data.roomID).emit("on-playlist-added", data.songs);
+    console.log(`Playlist ${data.song} is added to room ${data.roomID}`);
+  });
+
+  socket.on("set-playlist", (data)=> {
+    io.to(data.roomID).emit("on-playlist-set", data.songs);
+    console.log(`Playlist ${data.song} is set to room ${data.roomID}`);
+  });
+
+  socket.on("set-playlist-random", (data)=> {
+    io.to(data.roomID).emit("on-playlist-random-set", data.songs);
+    console.log(`Playlist ${data.song} is randomized and added to room ${data.roomID}`);
+  });
 
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} has disconnected`);
