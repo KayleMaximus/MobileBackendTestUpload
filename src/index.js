@@ -45,7 +45,8 @@ route(app);
 io.on("connection", (socket) => {
   console.log(`User with socketID: ${socket.id} connected`);
 
-  //hadnle create room
+  //////////////////////////////////// ------------Room---------------///////////////////////////
+
   socket.on("create-room", (data) => {
     socket.join(data.roomID);
     io.to(data.roomID).emit("on-create-room", data.roomID);
@@ -75,17 +76,23 @@ io.on("connection", (socket) => {
     io.to(data.roomID).emit("on-user-join-room", data.userName);
     console.log(`User ${data.userName} joined room ${data.roomID}`);
   });
+  //////////////////////////////////// ------------Mesage---------------///////////////////////////
 
-  // handle message
   socket.on("user-message", (data) => {
     io.to(data.roomID).emit("on-user-message", data.message);
     console.log(`In ra đối tượng cho pussyK xem: ${data.message}`)
   });
 
-  // handle play song
-  socket.on("on-add-song", (data) => {
-    io.to(data.roomID).emit("on-song-added", data.song);
+  //////////////////////////////////// -------------Song---------------///////////////////////////
+  socket.on("set-song", (data) => {
+    io.to(data.roomID).emit("on-song-set", data.song);
+    console.log(`Song ${data.song} is set to room ${data.roomID}`);
   });
+
+  socket.on("add-song", (data) => {
+    io.to(data.roomID).emit("on-song-added", data.song);
+    console.log(`Song ${data.song} is added to room ${data.roomID}`);
+  })
 
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} has disconnected`);
