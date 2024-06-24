@@ -117,6 +117,11 @@ io.on("connection", (socket) => {
     console.log(`Playlist ${songsArray} is randomized and added to room ${data.roomID}`);
   });
 
+  socket.on("set-song-queue-index", (data)=>{
+    io.to(data.roomID).emit("on-set-song-queue-index", data.index);
+    console.log(`Song index ${data.index} is set to room ${data.roomID}`);
+  });
+
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} has disconnected`);
     io.emit("on-user-disconnect", socket.id); // Notify other clients about the disconnection
