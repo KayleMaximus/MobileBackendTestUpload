@@ -99,19 +99,21 @@ io.on("connection", (socket) => {
     console.log(`Song ${data.song} is added to top of playlist in room ${data.roomID}`);
   });
 
+  //////////////////////////////////// -------------Playlist---------------///////////////////////////
   socket.on("add-playlist", (data)=> {
     io.to(data.roomID).emit("on-playlist-added", data.songs);
-    console.log(`Playlist ${data.song} is added to room ${data.roomID}`);
+    console.log(`Playlist ${data.songs} is added to room ${data.roomID}`);
   });
 
   socket.on("set-playlist", (data)=> {
     io.to(data.roomID).emit("on-playlist-set", data.songs);
-    console.log(`Playlist ${data.song} is set to room ${data.roomID}`);
+    console.log(`Playlist ${data.songs} is set to room ${data.roomID}`);
   });
 
   socket.on("set-playlist-random", (data)=> {
+    shuffleArray(data.songs);
     io.to(data.roomID).emit("on-playlist-random-set", data.songs);
-    console.log(`Playlist ${data.song} is randomized and added to room ${data.roomID}`);
+    console.log(`Playlist ${data.songs} is randomized and added to room ${data.roomID}`);
   });
 
   socket.on("disconnect", () => {
@@ -120,5 +122,12 @@ io.on("connection", (socket) => {
     //socket.broadcast.emit("on-user-disconnect", socket.id);
   });
 });
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+  }
+}
 
 server.listen(port, () => console.log(`Server has started on ${port}`));
