@@ -111,9 +111,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("set-playlist-random", (data)=> {
-    shuffleArray(data.songs);
-    io.to(data.roomID).emit("on-playlist-random-set", data.songs);
-    console.log(`Playlist ${data.songs} is randomized and added to room ${data.roomID}`);
+    const songsArray = data.songs;
+    shuffleArray(songsArray);
+    io.to(data.roomID).emit("on-playlist-random-set", songsArray);
+    console.log(`Playlist ${songsArray} is randomized and added to room ${data.roomID}`);
   });
 
   socket.on("disconnect", () => {
