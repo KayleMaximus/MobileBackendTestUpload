@@ -94,6 +94,11 @@ io.on("connection", (socket) => {
     console.log(`Song ${data.song} is added to room ${data.roomID}`);
   })
 
+  socket.on("add-song-play-next", (data) => {
+    io.to(data.roomID).emit("on-add-song-play-next", data.song);
+    console.log(`Song ${data.song} is added to top of playlist in room ${data.roomID}`);
+  })
+
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} has disconnected`);
     io.emit("on-user-disconnect", socket.id); // Notify other clients about the disconnection
