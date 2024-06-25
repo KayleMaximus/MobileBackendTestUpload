@@ -133,7 +133,7 @@ class PlaylistController {
   }
 
   async getSpecificPlaylist(req, res, next) {
-    const { userID, playlistName } = req.body;
+    const { userID, playlistName } = req.query;
     let playlist;
     await db
       .collection("playlists")
@@ -179,8 +179,6 @@ class PlaylistController {
 
       playlist.listSong = listSong;
     }
-
-    console.log(playlist);
 
     res.status(200).send(playlist);
   }
