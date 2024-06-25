@@ -32,8 +32,6 @@ async function create(req, res) {
 async function update(req, res) {
   const { userID, songID, isLove, count } = req.body; // Destructure data from historyData
 
-  console.log(userID, songID, isLove, count);
-
   try {
     // Tìm tài liệu có trường id phù hợp
     const historyRef = db
@@ -61,13 +59,11 @@ async function update(req, res) {
 
     const now = new Date();
 
-    if (count) {
-      updateData.count = history.count + count;
-      if (count == 0) {
-        updateData.lastListen = now;
-      } else if(count == 3 || count == -3) {
-        if (isLove != undefined || isLove != null) updateData.isLove = isLove;
-      }
+    updateData.count = history.count + count;
+    if (count == 0) {
+      updateData.lastListen = now;
+    } else if (count == 3 || count == -3) {
+      if (isLove != undefined || isLove != null) updateData.isLove = isLove;
     }
 
     const historyToSave = await historyRef.get();

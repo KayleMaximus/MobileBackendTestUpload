@@ -5,7 +5,6 @@ const listenHistoryController = require("../app/controllers/ListenHistoryControl
 const {
   checkHistoryExist,
   getListSongIDLoveByUserID,
-  getListenHistoryByUserID,
   getListenHistoryByUserID_History
 } = require("../app/middlewares/listenHistory");
 
