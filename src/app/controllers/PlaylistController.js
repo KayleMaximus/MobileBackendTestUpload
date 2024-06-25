@@ -108,7 +108,7 @@ class PlaylistController {
 
   async delete(req, res) {
     try {
-      const { userID, playlistName } = req.body;
+      const { userID, playlistName } = req.query;
 
       const playlistRef = db
         .collection("playlists")
