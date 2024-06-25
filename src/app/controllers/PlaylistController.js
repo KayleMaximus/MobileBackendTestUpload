@@ -153,8 +153,6 @@ class PlaylistController {
         });
       });
 
-    console.log(playlist);
-
     const listSong = [];
 
     if (playlist.listSong.length > 0) {
@@ -177,10 +175,9 @@ class PlaylistController {
         res.status(500).send("Internal Server Error");
       }
 
-      playlist.listSong = listSong;
     }
 
-    res.status(200).send(playlist);
+    res.status(200).send(listSong);
   }
 
   async getPlaylistByUserID(req, res, next) {
