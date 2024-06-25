@@ -130,6 +130,15 @@ io.on("connection", (socket) => {
     console.log(`Room ${data.roomID} is playing: ${data.isPlaying}`);
   });
 
+  socket.on("skip-song", (data) => {
+    io.to(data.roomID).emit("on-song-skipped", data.roomID);
+    console.log(`Room ${data.roomID} skipped a song`);
+  });
+
+  socket.on("previous-song", (data) => {
+    io.to(data.roomID).emit("on-previous", data.roomID);
+    console.log(`Room ${data.roomID} prevised a song`);
+  });
 
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} has disconnected`);
