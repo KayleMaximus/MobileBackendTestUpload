@@ -144,7 +144,14 @@ io.on("connection", (socket) => {
     // Assuming data contains roomID and position
     io.to(data.roomID).emit("on-song-seeked", data.position);
     console.log(`Room ${data.roomID} seeking to position: ${data.position}`);
+  });
+
+  socket.on("set-repeat-mode", (data) => {
+    // Assuming data contains roomID and repeatMode
+    io.to(data.roomID).emit("on-repeat-mode-set", data.repeatMode);
+    console.log(`Room ${data.roomID} set repeat mode to: ${data.repeatMode}`);
 });
+
 
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} has disconnected`);
