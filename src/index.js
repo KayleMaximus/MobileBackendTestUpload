@@ -140,6 +140,12 @@ io.on("connection", (socket) => {
     console.log(`Room ${data.roomID} prevised a song`);
   });
 
+  socket.on("song-seek", (data) => {
+    // Assuming data contains roomID and position
+    io.to(data.roomID).emit("on-song-seeked", data.position);
+    console.log(`Room ${data.roomID} seeking to position: ${data.position}`);
+});
+
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} has disconnected`);
     io.emit("on-user-disconnect", socket.id); // Notify other clients about the disconnection
