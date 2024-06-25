@@ -9,11 +9,13 @@ const { v4: uuidv4 } = require("uuid");
 const Song = require("../models/Song");
 const sqlite = require("../../config/db/sqliteCloud");
 const axios = require("axios");
+const {addSongToListSong} = require('../utils/artist');
 const sendNotification = require("../utils/notification");
 const redisClient = require('../../config/redis')
 
 const getSongBySongID_API_URL = process.env.API_URL + "songs/songID";
 const cacheKey = 'all-songs';
+const cacheKeyArtist = 'all-artists';
 
 class SongController {
   //[GET] /user
@@ -147,6 +149,15 @@ class SongController {
         console.log(error)
       }
 
+      try {
+        addSongToListSong(newSong.artist, newSong.name);
+        redisClient.del(cacheKeyArtist, (err, response) => {
+          if (err) throw err;
+          console.log(`Cache key ${cacheKey} deleted`);
+        })
+      } catch (error) {
+        console.log(error)
+      }
       sendNotification("media", newSong);
 
       res.status(201).send("Song created successfully");
