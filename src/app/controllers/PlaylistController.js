@@ -232,28 +232,14 @@ class PlaylistController {
         });
       });
 
-    let listSong = playlist.listSong;
-    let isExist = false;
+      let listSong = playlist.listSong;
+      let isExist = listSong.includes(songName);
 
-    if (listSong.length > 0) {
-      try {
-        for (let i = 0; i < listSong.length; i++) {
-          if (listSong[i] !== songName) {
-            isExist = false;
-          } else {
-            isExist = true;
-            break;
-          }
-        }
-
-        if (isExist == false) {
+      if (isExist) {
+          return res.status(500).send("This song already exists in this album");
+      } else {
           listSong.push(songName);
-        }
-      } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
       }
-    }
     const updatedData = {};
 
     updatedData.listSong = listSong;
