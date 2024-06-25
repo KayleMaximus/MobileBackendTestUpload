@@ -135,7 +135,7 @@ class UserController {
       }
 
       if (updatedData.imageURL) {
-        res.status(200).send({imageURL: updatedData.imageURL});
+        res.status(200).send({String: updatedData.imageURL});
       } else {
         res.status(200).send("User updated successfully");
       }
