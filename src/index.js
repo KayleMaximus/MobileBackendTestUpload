@@ -21,7 +21,7 @@ const route = require("./routes");
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://chill-music-corner-admin-ui.onrender.com",
     credentials: true,
   })
 );
