@@ -64,7 +64,6 @@ class ListenHistoryController {
 
     let listSong = [];
 
-    console.log(listBaseSort);
     try {
       const songPromises = listSongID.map(async (item) => {
         try {

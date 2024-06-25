@@ -61,9 +61,14 @@ async function update(req, res) {
 
     const now = new Date();
 
-    updateData.lastListen = now;
-    if (isLove != undefined || isLove != null) updateData.isLove = isLove;
-    if (count) updateData.count = history.count + count;
+    if (count) {
+      updateData.count = history.count + count;
+      if (count == 0) {
+        updateData.lastListen = now;
+      } else if(count == 3 || count == -3) {
+        if (isLove != undefined || isLove != null) updateData.isLove = isLove;
+      }
+    }
 
     const historyToSave = await historyRef.get();
     // Cập nhật chỉ các trường đã được cung cấp trong updatedData

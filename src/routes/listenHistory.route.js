@@ -6,6 +6,7 @@ const {
   checkHistoryExist,
   getListSongIDLoveByUserID,
   getListenHistoryByUserID,
+  getListenHistoryByUserID_History
 } = require("../app/middlewares/listenHistory");
 
 router.get(
@@ -15,7 +16,7 @@ router.get(
 );
 router.get(
   "/getListenHistory",
-  getListenHistoryByUserID,
+  getListenHistoryByUserID_History,
   listenHistoryController.getListenHistoryByUserID
 );
 

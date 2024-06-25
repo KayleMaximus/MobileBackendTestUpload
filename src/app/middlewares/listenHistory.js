@@ -136,6 +136,44 @@ async function getListenHistoryByUserID(req, res, next) {
   }
 }
 
+async function getListenHistoryByUserID_History(req, res, next) {
+  const userID = req.query.userID;
+
+  try {
+    // Truy vấn dữ liệu người dùng từ Firestore
+    const userRef = db
+      .collection("listenHistory")
+      .where("userID", "==", userID);
+    const myUser = await userRef.get();
+
+    let userDataList = [];
+    myUser.forEach((doc) => {
+      userDataList.push(doc.data());
+    });
+
+    userDataList.sort((a, b) => {
+      if (a.lastListen._seconds !== b.lastListen._seconds) {
+        return b.lastListen._seconds - a.lastListen._seconds; // Sắp xếp giảm dần theo _seconds
+      }
+      return b.lastListen._nanoseconds - a.lastListen._nanoseconds; // Nếu _seconds bằng nhau, so sánh _nanoseconds
+    });
+
+    let listSongID = [];
+    userDataList.map((item) => {
+      listSongID.push(item.songID);
+    });
+
+    req.listSongID = listSongID;
+    req.listBaseSort = userDataList;
+
+    next();
+
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 async function getListenHistoryByUserID_Forgotten(req, res, next) {
   const userID = req.query.userID;
 
@@ -173,5 +211,6 @@ module.exports = {
   checkHistoryExist,
   getListSongIDLoveByUserID,
   getListenHistoryByUserID,
+  getListenHistoryByUserID_History,
   getListenHistoryByUserID_Forgotten
 };
