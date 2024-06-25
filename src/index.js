@@ -123,6 +123,14 @@ io.on("connection", (socket) => {
     console.log(`Song index ${data.index} is set to room ${data.roomID}`);
   });
 
+  //////////////////////////////////// -------------MediaController---------------///////////////////////////
+
+  socket.on("play-pause", (data) => {
+    io.to(data.roomID).emit("on-play-pause", data.isPlaying);
+    console.log(`Room ${data.roomID} is playing: ${data.isPlaying}`);
+  });
+
+
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} has disconnected`);
     io.emit("on-user-disconnect", socket.id); // Notify other clients about the disconnection
